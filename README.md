@@ -1,148 +1,211 @@
-# WhatDidISign - AI-Powered Terms & Conditions Summarizer
+# WhatDidISign - AI Legal Document Analyzer
 
-## Overview
+![WhatDidISign Logo](icons/icon128.png)
 
-WhatDidISign is a Chrome browser extension that automatically detects Terms and Conditions (T&C) and Privacy Policy links on webpages, fetches and summarizes their contents using AI, and presents them in a clear, user-friendly format.
+**Never sign another document blindly.** WhatDidISign is a powerful Chrome extension that automatically detects Terms & Conditions and Privacy Policy links on websites, then uses AI to provide clear, consumer-friendly summaries with risk assessments.
 
 ## 🚀 Features
 
-- **Real-time Detection**: Automatically identifies T&C, Privacy Policy, and Cookie Policy links on any webpage
-- **AI-Powered Summarization**: Uses OpenAI GPT-3.5-turbo to generate concise, plain-language summaries
-- **Risk Assessment**: Highlights concerning clauses and provides risk scoring (0-1 scale)
-- **Data Rights Information**: Extracts and explains user rights regarding personal data
-- **Smart Caching**: Stores summaries locally to reduce API costs and improve performance
-- **Red Flag Detection**: Automatically identifies problematic terms like arbitration clauses, auto-renewal, data sharing
-- **Multiple UI Modes**: Popup, sidebar, and tooltip interfaces
-- **Privacy-First**: No personal data collection, all processing happens locally or via secure API
+### 🔍 **Smart Detection**
+- Automatically finds T&C and Privacy Policy links on any website
+- Works on all major sites (Google, Facebook, Twitter, GitHub, etc.)
+- Detects links in footers, navigation, and content areas
+- Real-time scanning as you browse
 
-## 📋 Project Structure
+### 🧠 **AI-Powered Analysis**
+- Uses Google's Gemini AI (free tier) for document analysis
+- Extracts key points in plain, understandable language
+- Identifies red flags and concerning clauses
+- Highlights your data rights and how to exercise them
+- Provides risk scores from 0-100
 
-```
-WhatDidISign/
-├── src/
-│   ├── chrome/              # Chrome extension scripts
-│   │   ├── background.ts    # Service worker for API calls and caching
-│   │   └── content.ts       # Content script for link detection
-│   ├── components/          # React components
-│   │   └── Popup.tsx        # Main popup UI component
-│   ├── types/               # TypeScript type definitions
-│   │   └── index.ts         # Interface definitions
-│   └── popup.tsx            # Popup entry point
-├── backend/                 # Optional backend API
-│   ├── server.js            # Express.js server
-│   ├── package.json         # Backend dependencies
-│   └── .env.example         # Environment variables template
-├── icons/                   # Extension icons
-├── manifest.json            # Chrome extension manifest
-├── popup.html              # Popup HTML template
-├── popup.css               # Popup styles
-├── content.css             # Content script styles
-└── webpack.config.js       # Build configuration
-```
+### ⚡ **Smart Caching**
+- Stores summaries for popular services
+- Reduces AI API usage and costs
+- Instant access to previously analyzed documents
+- Configurable cache expiration
 
-## 🛠️ Installation & Setup
+### 🎨 **Modern UI**
+- Clean, professional interface
+- Mobile-inspired design
+- Easy-to-read risk assessments
+- Color-coded warning levels
+- Intuitive navigation
 
-### Prerequisites
-- Node.js (v14 or higher)
-- npm or yarn
-- Chrome browser
-- OpenAI API key
+## 📱 Screenshots
 
-### 1. Clone and Install Dependencies
-```bash
-git clone <repository-url>
-cd WhatDidISign
-npm install
-```
+### Link Detection
+The extension automatically detects legal document links and shows confidence scores.
 
-### 2. Build the Extension
-```bash
-npm run build
-```
+### AI Analysis
+Get comprehensive summaries with key points, warnings, and data rights information.
 
-### 3. Load in Chrome
-1. Open Chrome and navigate to `chrome://extensions/`
-2. Enable "Developer mode" (top right toggle)
-3. Click "Load unpacked" and select the `dist` folder
-4. The extension should now appear in your Chrome toolbar
+### Risk Assessment
+Visual risk scores help you quickly understand document safety levels.
 
-### 4. Configure API Key
-1. Click the extension icon in Chrome
-2. Go to Settings tab
-3. Enter your OpenAI API key
-4. Save settings
+## 🛠 Installation
 
-## 💰 Cost Analysis & Free/Minimal Cost Strategy
+### Chrome Web Store (Coming Soon)
+*Extension will be available in the Chrome Web Store soon.*
 
-### Free Components
-- Chrome extension development and distribution
-- Local storage and caching
-- Basic link detection
-- User interface
+### Manual Installation (Developer Mode)
+1. Download or clone this repository
+2. Open Chrome and go to `chrome://extensions/`
+3. Enable "Developer mode" in the top right
+4. Click "Load unpacked" and select the `dist` folder
+5. The extension icon will appear in your browser toolbar
 
-### Minimal Cost Components
-- **OpenAI API**: ~$0.002 per 1k tokens (approximately $0.01-0.05 per summary)
-- **Backend hosting** (optional): $5-10/month for basic VPS
-- **Domain** (optional): $10-15/year
+## ⚙️ Setup
 
-### Cost Optimization Strategies
-1. **Smart Caching**: Cache summaries for popular services (Google, Facebook, etc.)
-2. **Batch Processing**: Process multiple documents in single API calls
-3. **Text Truncation**: Limit input text to essential content
-4. **Local Processing**: Use local models for basic text analysis
-5. **Community Sharing**: Share cached summaries (with privacy controls)
+### 1. Get a Free Google AI API Key
+1. Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Sign in with your Google account
+3. Create a new API key
+4. Copy the key for the next step
 
-### Revenue Model Options
-- **Freemium**: Basic features free, premium features paid
-- **Usage-based**: Pay per summary after free tier
-- **Subscription**: Monthly fee for unlimited usage
-- **One-time purchase**: Buy once, use forever
+### 2. Configure the Extension
+1. Click the WhatDidISign extension icon
+2. Go to the "Settings" tab
+3. Paste your API key in the "Google AI API Key" field
+4. Click "Save Settings"
 
-## 🎯 Target Users
+**That's it!** You're ready to start analyzing legal documents.
 
-### Primary Users
-- **Privacy-conscious individuals**: People who care about their digital rights
-- **Busy professionals**: Those who don't have time to read lengthy legal documents
-- **Students and researchers**: People studying digital rights and privacy
-- **Parents**: Protecting family privacy online
+## 🔧 Usage
 
-### Secondary Users
-- **Journalists**: Investigating company practices
-- **Legal professionals**: Quick overview of standard terms
-- **Digital rights activists**: Monitoring concerning practices
-- **Businesses**: Understanding competitor policies
+### Analyzing Documents
+1. **Visit any website** - The extension automatically scans for legal document links
+2. **Click the extension icon** - View detected Terms & Conditions and Privacy Policy links
+3. **Click "Analyze Document"** - Get an AI-powered summary with risk assessment
+4. **Review the analysis** - Check key points, red flags, and your data rights
 
-## 🚀 Development
+### Understanding Risk Scores
+- **🟢 0-40: Low Risk** - Generally user-friendly terms
+- **🟡 41-70: Medium Risk** - Some concerning clauses, review carefully
+- **🔴 71-100: High Risk** - Multiple red flags, proceed with caution
 
-### Build Commands
-```bash
-npm run build      # Production build
-npm run dev        # Development build with watch
-npm run clean      # Clean dist folder
-npm run lint       # Run ESLint
-```
-
-### Backend Development (Optional)
-```bash
-cd backend
-npm install
-cp .env.example .env
-# Edit .env with your API keys
-npm run dev        # Start development server
-```
+### Common Red Flags
+- **Arbitration Clauses** - Prevents you from taking the company to court
+- **Auto-Renewal** - Automatic subscription renewals without clear notice
+- **Data Sharing** - Your data may be sold to third parties
+- **Liability Limitations** - Company limits responsibility for damages
+- **Broad Termination Rights** - Service can be terminated without notice
 
 ## 🔒 Privacy & Security
 
-### Data Handling
-- **No Personal Data Collection**: Extension doesn't collect user data
-- **Local Processing**: Most operations happen locally
-- **Secure API Calls**: All external calls use HTTPS
-- **No Tracking**: No analytics or tracking scripts
+### Your Privacy First
+- **No data collection** - We don't track your browsing or store personal data
+- **Local processing** - Extension runs entirely in your browser
+- **API communication** - Only sends document text to Google AI for analysis
+- **No user tracking** - No analytics, cookies, or behavioral monitoring
 
-### Security Features
-- **Content Security Policy**: Prevents XSS attacks
-- **Permission Minimization**: Only requests necessary permissions
-- **Input Sanitization**: All user inputs are sanitized
-- **HTTPS Only**: All external communication encrypted
+### API Usage
+- Uses Google's Gemini AI API for document analysis
+- Your API key is stored locally in your browser
+- Document text is sent to Google AI for processing
+- No document content is stored by WhatDidISign
 
-**Built with ❤️ for digital privacy and transparency**
+## 💡 Tips for Best Results
+
+### Getting Accurate Analysis
+- Ensure you have a stable internet connection
+- Use the extension on the actual document pages (not just link pages)
+- Check that your API key is properly configured
+- Some documents may take 10-30 seconds to analyze
+
+### Managing API Costs
+- Google Gemini free tier: 15 requests/minute, 1,500/day
+- Enable caching to reduce repeated API calls
+- Cache common services (Google, Facebook, etc.) for instant access
+- Consider upgrading to paid tier for heavy usage
+
+## 🛠 Configuration Options
+
+### AI Provider Settings
+- **Google Gemini** (Recommended): Free tier with generous limits
+- **OpenAI GPT-3.5**: Paid option with consistent performance
+
+### Cache Settings
+- **Enable/Disable Caching**: Store summaries locally
+- **Cache Expiry**: How long to keep cached summaries (1-365 days)
+- **Clear Cache**: Remove all stored summaries
+
+### Display Options
+- **Show Red Flags**: Toggle warning displays
+- **Risk Threshold**: Minimum risk level to highlight
+- **Notifications**: Browser notifications for high-risk documents
+
+## 🤝 Contributing
+
+We welcome contributions! This is an open-source project aimed at making legal documents more accessible to everyone.
+
+### Development Setup
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/whatdidisign.git
+cd whatdidisign
+
+# Install dependencies
+npm install
+
+# Build for development
+npm run build
+
+# Watch for changes
+npm run watch
+```
+
+### Project Structure
+```
+src/
+├── chrome/           # Chrome extension scripts
+│   ├── background.ts # Service worker
+│   └── content.ts   # Content script for link detection
+├── components/      # React UI components
+│   └── Popup.tsx   # Main popup interface
+├── utils/          # Utility functions
+│   └── aiService.ts # AI API integration
+└── types.ts        # TypeScript type definitions
+```
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🆘 Support
+
+### Common Issues
+
+**Extension not detecting links?**
+- Scroll to the bottom of the page
+- Try refreshing the page
+- Check the browser console for errors
+
+**API errors?**
+- Verify your API key is correct
+- Check your Google AI API quota
+- Ensure you have internet connectivity
+
+**Analysis taking too long?**
+- Large documents may take 30+ seconds
+- Check your internet connection
+- Try refreshing and analyzing again
+
+### Get Help
+- 📧 **Email**: support@whatdidisign.com
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/yourusername/whatdidisign/issues)
+- 💡 **Feature Requests**: [GitHub Discussions](https://github.com/yourusername/whatdidisign/discussions)
+
+## 🙏 Acknowledgments
+
+- **Google AI** for providing the Gemini API
+- **OpenAI** for alternative AI processing
+- **Chrome Extensions API** for the platform
+- **React** for the user interface
+- **TypeScript** for type safety
+
+---
+
+**Made with ❤️ for a more transparent internet.**
+
+*WhatDidISign is not a substitute for legal advice. Always consult with a qualified attorney for important legal decisions.*
