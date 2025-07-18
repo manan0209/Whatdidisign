@@ -49,7 +49,11 @@ export class AIService {
   private async callGeminiAPI(content: string, type: string): Promise<AIResponse> {
     const prompt = this.buildPrompt(content, type);
     
-    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=' + this.provider.apiKey, {
+    // Updated model name - Gemini 1.5 Flash is the current free model
+    const modelName = 'gemini-1.5-flash';
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${this.provider.apiKey}`;
+    
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -65,13 +69,31 @@ export class AIService {
           topK: 1,
           topP: 1,
           maxOutputTokens: 1000,
-        }
+        },
+        safetySettings: [
+          {
+            category: "HARM_CATEGORY_HARASSMENT",
+            threshold: "BLOCK_NONE"
+          },
+          {
+            category: "HARM_CATEGORY_HATE_SPEECH", 
+            threshold: "BLOCK_NONE"
+          },
+          {
+            category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+            threshold: "BLOCK_NONE"
+          },
+          {
+            category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+            threshold: "BLOCK_NONE"
+          }
+        ]
       })
     });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(`Gemini API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
+      throw new Error(`Gemini API error: ${response.status} - ${errorData.error?.message || response.statusText}`);
     }
 
     const data = await response.json();
@@ -244,8 +266,8 @@ export const DEFAULT_PROVIDERS: Record<string, AIProvider> = {
   gemini: {
     name: 'Google Gemini',
     apiKey: '',
-    model: 'gemini-pro',
-    endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent',
+    model: 'gemini-1.5-flash',
+    endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent',
     costPer1K: 0, // Free tier
     provider: 'gemini'
   },

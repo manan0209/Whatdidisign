@@ -5,15 +5,17 @@ class TCDetector {
     terms: [
       'terms of service', 'terms of use', 'terms & conditions', 'terms and conditions',
       'user agreement', 'service agreement', 'legal terms', 'tos', 'eula',
-      'end user license agreement', 'licensing agreement'
+      'end user license agreement', 'licensing agreement', 'terms', 'conditions',
+      'user terms', 'service terms', 'website terms', 'platform terms'
     ],
     privacy: [
       'privacy policy', 'privacy notice', 'privacy statement', 'data policy',
-      'data protection', 'privacy practices', 'information collection'
+      'data protection', 'privacy practices', 'information collection', 'privacy',
+      'data usage', 'personal information', 'data handling', 'privacy rights'
     ],
     cookies: [
       'cookie policy', 'cookie notice', 'cookie preferences', 'cookie settings',
-      'cookies and tracking', 'cookie information'
+      'cookies and tracking', 'cookie information', 'cookies', 'tracking'
     ]
   };
 
@@ -34,6 +36,33 @@ class TCDetector {
 
   constructor() {
     this.observer = new MutationObserver(this.handleMutations.bind(this));
+    this.setupMessageListener();
+  }
+
+  private setupMessageListener(): void {
+    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+      if (message.type === 'GET_PAGE_CONTENT') {
+        // Extract clean text content from the current page
+        const content = this.extractPageContent();
+        sendResponse({ content });
+        return true; // Keep message channel open for async response
+      }
+    });
+  }
+
+  private extractPageContent(): string {
+    // Clone the document to avoid modifying the original
+    const docClone = document.cloneNode(true) as Document;
+    
+    // Remove script and style elements
+    const scripts = docClone.querySelectorAll('script, style, noscript');
+    scripts.forEach(el => el.remove());
+    
+    // Get text content from body
+    const bodyText = docClone.body?.textContent || docClone.documentElement.textContent || '';
+    
+    // Clean up whitespace
+    return bodyText.replace(/\s+/g, ' ').trim();
   }
 
   init(): void {
@@ -41,29 +70,135 @@ class TCDetector {
       return;
     }
     
+    console.log('WhatDidISign: Content script initializing...');
     this.isInitialized = true;
+    
+    // Initial scan
     this.scanForLinks();
+    
+    // Delayed scan for dynamic content
+    setTimeout(() => {
+      console.log('WhatDidISign: Performing delayed scan for dynamic content...');
+      this.scanForLinks();
+    }, 2000);
+    
+    // Start observing for future changes
     this.startObserving();
     this.notifyBackground();
+    console.log('WhatDidISign: Content script initialized');
   }
 
   private scanForLinks(): void {
     const links = document.querySelectorAll('a[href]');
     const newLinks: DetectedLink[] = [];
+    
+    console.log(`WhatDidISign: Scanning ${links.length} links on page`);
 
+    // First pass - analyze all links
     links.forEach(link => {
       const detected = this.analyzeLink(link as HTMLAnchorElement);
       if (detected && !this.isDuplicate(detected)) {
         newLinks.push(detected);
         this.addVisualIndicator(detected);
+        console.log(`WhatDidISign: Detected ${detected.type} link:`, detected.text, detected.url);
       }
     });
 
+    // Second pass - check footer and common locations if no links found
+    if (newLinks.length === 0) {
+      const footerLinks = this.scanFooterLinks();
+      newLinks.push(...footerLinks);
+    }
+
     this.detectedLinks.push(...newLinks);
+    
+    console.log(`WhatDidISign: Found ${newLinks.length} new T&C links, total: ${this.detectedLinks.length}`);
     
     if (newLinks.length > 0) {
       this.notifyBackground();
     }
+  }
+
+  private scanFooterLinks(): DetectedLink[] {
+    const footerLinks: DetectedLink[] = [];
+    
+    // Look for common footer selectors
+    const footerSelectors = [
+      'footer', 'div[class*="footer"]', 'div[id*="footer"]',
+      'nav[class*="footer"]', 'div[class*="legal"]', 'div[class*="bottom"]',
+      // Google-specific selectors
+      'div[jsname]', 'div[data-ved]', 'div[style*="bottom"]'
+    ];
+    
+    // Also try to find links anywhere in the bottom part of the page
+    const bottomLinks = document.querySelectorAll('a[href]');
+    const pageHeight = document.documentElement.scrollHeight;
+    const bottomThreshold = pageHeight * 0.8; // Bottom 20% of page
+    
+    console.log(`WhatDidISign: Scanning footer areas and bottom ${Math.round((1 - 0.8) * 100)}% of page`);
+    
+    footerSelectors.forEach(selector => {
+      const footerElement = document.querySelector(selector);
+      if (footerElement) {
+        console.log(`WhatDidISign: Found footer element with selector: ${selector}`);
+        const links = footerElement.querySelectorAll('a[href]');
+        links.forEach(link => {
+          const detected = this.analyzeLink(link as HTMLAnchorElement);
+          if (detected && !this.isDuplicate(detected) && 
+              !footerLinks.some(existing => existing.url === detected.url)) {
+            footerLinks.push(detected);
+            this.addVisualIndicator(detected);
+            console.log(`WhatDidISign: Found ${detected.type} link in footer:`, detected.text);
+          }
+        });
+      }
+    });
+    
+    // Check bottom area links
+    bottomLinks.forEach(link => {
+      const linkElement = link as HTMLAnchorElement;
+      const rect = linkElement.getBoundingClientRect();
+      const absoluteTop = rect.top + window.pageYOffset;
+      
+      if (absoluteTop > bottomThreshold) {
+        const detected = this.analyzeLink(linkElement);
+        if (detected && !this.isDuplicate(detected) && 
+            !footerLinks.some(existing => existing.url === detected.url)) {
+          footerLinks.push(detected);
+          this.addVisualIndicator(detected);
+          console.log(`WhatDidISign: Found ${detected.type} link in bottom area:`, detected.text);
+        }
+      }
+    });
+    
+    return footerLinks;
+  }
+
+  private getUrlBonus(href: string): { score: number; type: string } {
+    // Check URL patterns for common legal document paths
+    const patterns = {
+      terms: [
+        '/terms', '/tos', '/user-agreement', '/eula', '/service-agreement',
+        'terms-of-service', 'terms-of-use', 'terms-and-conditions'
+      ],
+      privacy: [
+        '/privacy', '/privacy-policy', '/data-policy', '/privacy-notice',
+        'privacy-statement', 'privacy-practices'
+      ],
+      cookies: [
+        '/cookies', '/cookie-policy', '/cookie-notice', '/cookie-preferences'
+      ]
+    };
+
+    for (const [type, typePatterns] of Object.entries(patterns)) {
+      for (const pattern of typePatterns) {
+        if (href.includes(pattern)) {
+          return { score: 0.5, type }; // High bonus for URL match
+        }
+      }
+    }
+
+    return { score: 0, type: '' };
   }
 
   private analyzeLink(link: HTMLAnchorElement): DetectedLink | null {
@@ -81,6 +216,12 @@ class TCDetector {
       cookies: this.calculateScore(combinedText, TCDetector.KEYWORDS.cookies)
     };
 
+    // Additional check for URL patterns
+    const urlBonus = this.getUrlBonus(href);
+    if (urlBonus.score > 0) {
+      typeScores[urlBonus.type as keyof typeof typeScores] += urlBonus.score;
+    }
+
     // Find the highest scoring type
     const bestType = Object.entries(typeScores).reduce((a, b) => 
       typeScores[a[0] as keyof typeof typeScores] > typeScores[b[0] as keyof typeof typeScores] ? a : b
@@ -88,7 +229,19 @@ class TCDetector {
 
     const confidence = typeScores[bestType[0] as keyof typeof typeScores];
     
-    if (confidence > 0.3) { // Threshold for detection
+    // Debug logging
+    if (confidence > 0.05 || text.includes('terms') || text.includes('privacy')) {
+      console.log(`WhatDidISign: Link analysis for "${text.substring(0, 50)}...":`, {
+        confidence,
+        type: bestType[0],
+        scores: typeScores,
+        href: href.substring(0, 100),
+        text: text,
+        urlBonus: urlBonus
+      });
+    }
+    
+    if (confidence > 0.1) { // Further lowered threshold
       return {
         url: link.href,
         text: link.textContent || '',

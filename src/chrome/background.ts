@@ -31,8 +31,8 @@ class BackgroundService {
       aiProvider: {
         name: 'Google Gemini',
         apiKey: '',
-        model: 'gemini-pro',
-        endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent',
+        model: 'gemini-1.5-flash',
+        endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent',
         costPer1K: 0,
         provider: 'gemini'
       },
@@ -143,24 +143,76 @@ class BackgroundService {
 
   private async fetchDocument(url: string): Promise<string> {
     try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      // Try to get content from an active tab if it's the same URL
+      const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+      const activeTab = tabs[0];
+      
+      if (activeTab?.url === url && activeTab.id) {
+        // If we're on the same page, get content from the content script
+        try {
+          const response = await chrome.tabs.sendMessage(activeTab.id, {
+            type: 'GET_PAGE_CONTENT'
+          });
+          if (response && response.content) {
+            return response.content;
+          }
+        } catch (error) {
+          console.log('Could not get content from active tab, falling back to fetch');
+        }
       }
       
-      const html = await response.text();
+      // For external URLs, we need to inject a content script to fetch the content
+      // This avoids CORS issues and DOMParser problems
+      return await this.fetchExternalDocument(url);
       
-      // Extract text content from HTML
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, 'text/html');
-      
-      // Remove script and style elements
-      const scripts = doc.querySelectorAll('script, style');
-      scripts.forEach(el => el.remove());
-      
-      return doc.body.textContent || '';
     } catch (error) {
       throw new Error(`Failed to fetch document: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  private async fetchExternalDocument(url: string): Promise<string> {
+    try {
+      // Create a new tab to fetch the content
+      const tab = await chrome.tabs.create({ url, active: false });
+      
+      if (!tab.id) {
+        throw new Error('Failed to create tab');
+      }
+      
+      // Wait for the tab to load
+      await new Promise<void>((resolve) => {
+        const listener = (tabId: number, changeInfo: chrome.tabs.TabChangeInfo) => {
+          if (tabId === tab.id && changeInfo.status === 'complete') {
+            chrome.tabs.onUpdated.removeListener(listener);
+            resolve();
+          }
+        };
+        chrome.tabs.onUpdated.addListener(listener);
+      });
+      
+      // Inject content script to extract text
+      const results = await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        func: () => {
+          // Remove script and style elements
+          const scripts = document.querySelectorAll('script, style, noscript');
+          scripts.forEach(el => el.remove());
+          
+          // Get text content from body
+          const bodyText = document.body?.textContent || document.documentElement.textContent || '';
+          
+          // Clean up whitespace
+          return bodyText.replace(/\s+/g, ' ').trim();
+        }
+      });
+      
+      // Close the tab
+      await chrome.tabs.remove(tab.id);
+      
+      return results[0]?.result || '';
+      
+    } catch (error) {
+      throw new Error(`Failed to fetch external document: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
