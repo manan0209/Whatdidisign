@@ -1,152 +1,618 @@
-/* Content Script Styles */
+/* WhatDidISign Content Script - Minimal Black & Orange Theme */
+
+/* Main indicator dot */
 .whatdidisign-indicator {
   position: absolute !important;
-  top: -5px !important;
-  right: -5px !important;
-  background: #4CAF50 !important;
-  color: white !important;
+  top: -6px !important;
+  right: -6px !important;
+  background: #ff6b35 !important;
+  border: 2px solid #000000 !important;
   border-radius: 50% !important;
-  width: 20px !important;
-  height: 20px !important;
-  font-size: 12px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+  width: 12px !important;
+  height: 12px !important;
   z-index: 10000 !important;
   cursor: pointer !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
   transition: all 0.2s ease !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
 }
 
 .whatdidisign-indicator:hover {
-  background: #45a049 !important;
-  transform: scale(1.1) !important;
+  background: #e55a2b !important;
+  transform: scale(1.3) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
 }
 
 .whatdidisign-indicator:active {
-  transform: scale(0.95) !important;
-}
-
-/* Tooltip styles */
-.whatdidisign-tooltip {
-  position: absolute !important;
-  background: #333 !important;
-  color: white !important;
-  padding: 8px 12px !important;
-  border-radius: 4px !important;
-  font-size: 12px !important;
-  z-index: 10001 !important;
-  white-space: nowrap !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
-  opacity: 0 !important;
-  transition: opacity 0.2s ease !important;
-}
-
-.whatdidisign-tooltip.show {
-  opacity: 1 !important;
-}
-
-.whatdidisign-tooltip:after {
-  content: '' !important;
-  position: absolute !important;
-  top: 100% !important;
-  left: 50% !important;
-  margin-left: -5px !important;
-  border-width: 5px !important;
-  border-style: solid !important;
-  border-color: #333 transparent transparent transparent !important;
-}
-
-/* Highlight styles for detected links */
-.whatdidisign-detected-link {
-  outline: 2px solid #4CAF50 !important;
-  outline-offset: 2px !important;
-  border-radius: 2px !important;
-  position: relative !important;
-}
-
-.whatdidisign-detected-link:hover {
-  outline-color: #45a049 !important;
+  transform: scale(1.1) !important;
 }
 
 /* Risk level indicators */
 .whatdidisign-risk-high {
-  background: #f44336 !important;
+  background: #ef4444 !important;
+  animation: whatdidisign-pulse 2s infinite !important;
 }
 
 .whatdidisign-risk-medium {
-  background: #ff9800 !important;
+  background: #f59e0b !important;
 }
 
 .whatdidisign-risk-low {
-  background: #4caf50 !important;
+  background: #10b981 !important;
 }
 
-/* Floating summary card */
-.whatdidisign-summary-card {
+/* Full Analysis Popup - Awesome UX */
+.whatdidisign-analysis-popup {
   position: fixed !important;
-  top: 50% !important;
-  left: 50% !important;
-  transform: translate(-50%, -50%) !important;
-  background: white !important;
-  border-radius: 8px !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
-  padding: 20px !important;
-  max-width: 400px !important;
-  max-height: 80vh !important;
-  overflow-y: auto !important;
-  z-index: 10002 !important;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif !important;
+  background: rgba(0, 0, 0, 0.98) !important;
+  color: #ffffff !important;
+  border-radius: 16px !important;
   font-size: 14px !important;
-  line-height: 1.4 !important;
-  color: #333 !important;
+  z-index: 10004 !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8) !important;
+  opacity: 0 !important;
+  transform: scale(0.95) translateY(20px) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 107, 53, 0.3) !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif !important;
+  line-height: 1.5 !important;
+  overflow: hidden !important;
 }
 
-.whatdidisign-summary-card h3 {
-  margin: 0 0 16px 0 !important;
+.whatdidisign-analysis-popup.show {
+  opacity: 1 !important;
+  transform: scale(1) translateY(0) !important;
+}
+
+.whatdidisign-analysis-popup .analysis-header {
+  background: rgba(255, 107, 53, 0.1) !important;
+  padding: 20px 24px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.whatdidisign-analysis-popup .analysis-title {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 8px !important;
+}
+
+.whatdidisign-analysis-popup .doc-type {
   font-size: 18px !important;
-  color: #333 !important;
+  font-weight: 600 !important;
+  color: #ff6b35 !important;
 }
 
-.whatdidisign-summary-card .close-btn {
-  position: absolute !important;
-  top: 10px !important;
-  right: 10px !important;
+.whatdidisign-analysis-popup .close-btn {
   background: none !important;
   border: none !important;
-  font-size: 20px !important;
+  color: #ffffff !important;
+  font-size: 24px !important;
   cursor: pointer !important;
-  color: #666 !important;
   padding: 0 !important;
-  width: 30px !important;
-  height: 30px !important;
+  width: 32px !important;
+  height: 32px !important;
   border-radius: 50% !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+  transition: background 0.2s ease !important;
 }
 
-.whatdidisign-summary-card .close-btn:hover {
-  background: #f0f0f0 !important;
+.whatdidisign-analysis-popup .close-btn:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
 }
 
+.whatdidisign-analysis-popup .analysis-url {
+  color: #cccccc !important;
+  font-size: 13px !important;
+}
+
+.whatdidisign-analysis-popup .analysis-content {
+  padding: 24px !important;
+  max-height: 500px !important;
+  overflow-y: auto !important;
+}
+
+/* Loading State */
+.whatdidisign-analysis-popup .loading-state {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  padding: 40px 20px !important;
+}
+
+.whatdidisign-analysis-popup .loading-spinner {
+  width: 32px !important;
+  height: 32px !important;
+  border: 3px solid rgba(255, 107, 53, 0.2) !important;
+  border-top: 3px solid #ff6b35 !important;
+  border-radius: 50% !important;
+  animation: whatdidisign-spin 1s linear infinite !important;
+  margin-bottom: 16px !important;
+}
+
+@keyframes whatdidisign-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.whatdidisign-analysis-popup .loading-text {
+  color: #cccccc !important;
+  font-size: 14px !important;
+}
+
+/* Risk Assessment */
+.whatdidisign-analysis-popup .risk-assessment {
+  display: flex !important;
+  gap: 24px !important;
+  margin-bottom: 32px !important;
+  padding: 20px !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  border-radius: 12px !important;
+}
+
+.whatdidisign-analysis-popup .risk-score {
+  text-align: center !important;
+  min-width: 80px !important;
+}
+
+.whatdidisign-analysis-popup .risk-number {
+  font-size: 32px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+}
+
+.whatdidisign-analysis-popup .risk-score.risk-low .risk-number {
+  color: #10b981 !important;
+}
+
+.whatdidisign-analysis-popup .risk-score.risk-medium .risk-number {
+  color: #f59e0b !important;
+}
+
+.whatdidisign-analysis-popup .risk-score.risk-high .risk-number {
+  color: #ef4444 !important;
+}
+
+.whatdidisign-analysis-popup .risk-label {
+  font-size: 12px !important;
+  color: #cccccc !important;
+  margin-top: 4px !important;
+}
+
+.whatdidisign-analysis-popup .safety-advice {
+  flex: 1 !important;
+}
+
+.whatdidisign-analysis-popup .advice-label {
+  font-size: 12px !important;
+  color: #cccccc !important;
+  margin-bottom: 8px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.whatdidisign-analysis-popup .advice-text {
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  color: #ffffff !important;
+}
+
+/* Sections */
+.whatdidisign-analysis-popup .section {
+  margin-bottom: 28px !important;
+}
+
+.whatdidisign-analysis-popup .section h3 {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  margin: 0 0 16px 0 !important;
+  color: #ff6b35 !important;
+}
+
+/* Warnings */
+.whatdidisign-analysis-popup .warning-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+
+.whatdidisign-analysis-popup .warning-item {
+  padding: 16px !important;
+  border-radius: 8px !important;
+  border-left: 4px solid #ef4444 !important;
+  background: rgba(239, 68, 68, 0.1) !important;
+}
+
+.whatdidisign-analysis-popup .warning-item.severity-medium {
+  border-left-color: #f59e0b !important;
+  background: rgba(245, 158, 11, 0.1) !important;
+}
+
+.whatdidisign-analysis-popup .warning-item.severity-low {
+  border-left-color: #6b7280 !important;
+  background: rgba(107, 114, 128, 0.1) !important;
+}
+
+.whatdidisign-analysis-popup .warning-text {
+  font-weight: 500 !important;
+  margin-bottom: 8px !important;
+}
+
+.whatdidisign-analysis-popup .warning-quote {
+  font-size: 12px !important;
+  color: #cccccc !important;
+  font-style: italic !important;
+}
+
+/* Key Points */
+.whatdidisign-analysis-popup .points-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+
+.whatdidisign-analysis-popup .point-item {
+  padding: 12px 16px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-radius: 8px !important;
+  border-left: 3px solid #ff6b35 !important;
+}
+
+/* Data Rights */
+.whatdidisign-analysis-popup .rights-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+}
+
+.whatdidisign-analysis-popup .right-item {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 12px 16px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-radius: 8px !important;
+}
+
+.whatdidisign-analysis-popup .right-item.available .right-status {
+  color: #10b981 !important;
+  font-weight: 500 !important;
+}
+
+.whatdidisign-analysis-popup .right-item.unavailable .right-status {
+  color: #ef4444 !important;
+  font-weight: 500 !important;
+}
+
+/* Action Buttons */
+.whatdidisign-analysis-popup .action-buttons {
+  display: flex !important;
+  gap: 12px !important;
+  margin-top: 32px !important;
+  padding-top: 20px !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.whatdidisign-analysis-popup .btn-primary,
+.whatdidisign-analysis-popup .btn-secondary {
+  flex: 1 !important;
+  padding: 12px 20px !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.whatdidisign-analysis-popup .btn-primary {
+  background: #ff6b35 !important;
+  color: #ffffff !important;
+}
+
+.whatdidisign-analysis-popup .btn-primary:hover {
+  background: #e55a2b !important;
+  transform: translateY(-1px) !important;
+}
+
+.whatdidisign-analysis-popup .btn-secondary {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.whatdidisign-analysis-popup .btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Error State */
+.whatdidisign-analysis-popup .error-state {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  padding: 40px 20px !important;
+  text-align: center !important;
+}
+
+.whatdidisign-analysis-popup .error-icon {
+  width: 48px !important;
+  height: 48px !important;
+  background: #ef4444 !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 24px !important;
+  color: #ffffff !important;
+  margin-bottom: 16px !important;
+}
+
+.whatdidisign-analysis-popup .error-title {
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  margin-bottom: 8px !important;
+}
+
+.whatdidisign-analysis-popup .error-message {
+  color: #cccccc !important;
+  margin-bottom: 24px !important;
+}
+
+.whatdidisign-analysis-popup .error-actions {
+  display: flex !important;
+  gap: 12px !important;
+}
+
+/* Animation for risk indicators */
+@keyframes whatdidisign-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
+/* Translucent summary tooltip */
+.whatdidisign-tooltip {
+  position: absolute !important;
+  background: rgba(0, 0, 0, 0.95) !important;
+  color: #ffffff !important;
+  padding: 12px 16px !important;
+  border-radius: 8px !important;
+  font-size: 12px !important;
+  z-index: 10001 !important;
+  max-width: 300px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+  opacity: 0 !important;
+  transform: translateY(-5px) !important;
+  transition: all 0.3s ease !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 107, 53, 0.3) !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif !important;
+  line-height: 1.4 !important;
+}
+
+/* Tooltip arrow pointing down (when tooltip is above) */
+.whatdidisign-tooltip::after {
+  content: '' !important;
+  position: absolute !important;
+  bottom: -6px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 0 !important;
+  height: 0 !important;
+  border-left: 6px solid transparent !important;
+  border-right: 6px solid transparent !important;
+  border-top: 6px solid rgba(0, 0, 0, 0.95) !important;
+  z-index: 10002 !important;
+}
+
+/* Tooltip arrow pointing up (when tooltip is below) */
+.whatdidisign-tooltip.below::after {
+  bottom: auto !important;
+  top: -6px !important;
+  border-top: none !important;
+  border-bottom: 6px solid rgba(0, 0, 0, 0.95) !important;
+}
+
+.whatdidisign-tooltip.show {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+.whatdidisign-tooltip-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-bottom: 8px !important;
+  padding-bottom: 6px !important;
+  border-bottom: 1px solid rgba(255, 107, 53, 0.3) !important;
+}
+
+.whatdidisign-tooltip-title {
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  color: #ff6b35 !important;
+  margin: 0 !important;
+}
+
+.whatdidisign-tooltip-risk {
+  font-size: 10px !important;
+  padding: 2px 6px !important;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.whatdidisign-tooltip-risk.low {
+  background: rgba(16, 185, 129, 0.2) !important;
+  color: #10b981 !important;
+}
+
+.whatdidisign-tooltip-risk.medium {
+  background: rgba(245, 158, 11, 0.2) !important;
+  color: #f59e0b !important;
+}
+
+.whatdidisign-tooltip-risk.high {
+  background: rgba(239, 68, 68, 0.2) !important;
+  color: #ef4444 !important;
+}
+
+.whatdidisign-tooltip-content {
+  font-size: 11px !important;
+  line-height: 1.3 !important;
+  color: #cccccc !important;
+}
+
+.whatdidisign-tooltip-content ul {
+  margin: 6px 0 0 0 !important;
+  padding-left: 14px !important;
+}
+
+.whatdidisign-tooltip-content li {
+  margin-bottom: 3px !important;
+}
+
+.whatdidisign-tooltip-actions {
+  margin-top: 10px !important;
+  padding-top: 8px !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+  display: flex !important;
+  gap: 8px !important;
+}
+
+.whatdidisign-tooltip-btn {
+  background: #ff6b35 !important;
+  color: white !important;
+  border: none !important;
+  padding: 6px 12px !important;
+  border-radius: 4px !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.whatdidisign-tooltip-btn:hover {
+  background: #e55a2b !important;
+  transform: translateY(-1px) !important;
+}
+
+.whatdidisign-tooltip-btn.secondary {
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  color: #cccccc !important;
+}
+
+.whatdidisign-tooltip-btn.secondary:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Highlight styles for detected links */
+.whatdidisign-detected-link {
+  position: relative !important;
+}
+
+.whatdidisign-detected-link:hover {
+  background: rgba(255, 107, 53, 0.05) !important;
+  border-radius: 3px !important;
+}
+
+/* Full summary overlay */
 .whatdidisign-overlay {
   position: fixed !important;
   top: 0 !important;
   left: 0 !important;
   right: 0 !important;
   bottom: 0 !important;
-  background: rgba(0, 0, 0, 0.5) !important;
+  background: rgba(0, 0, 0, 0.8) !important;
   z-index: 10001 !important;
+  backdrop-filter: blur(5px) !important;
+  opacity: 0 !important;
+  transition: opacity 0.3s ease !important;
+}
+
+.whatdidisign-overlay.show {
+  opacity: 1 !important;
+}
+
+.whatdidisign-summary-card {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) scale(0.9) !important;
+  background: #111111 !important;
+  border: 1px solid #333333 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6) !important;
+  padding: 24px !important;
+  max-width: 480px !important;
+  max-height: 80vh !important;
+  overflow-y: auto !important;
+  z-index: 10002 !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif !important;
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+  color: #ffffff !important;
+  opacity: 0 !important;
+  transition: all 0.3s ease !important;
+}
+
+.whatdidisign-summary-card.show {
+  opacity: 1 !important;
+  transform: translate(-50%, -50%) scale(1) !important;
+}
+
+.whatdidisign-summary-card h3 {
+  margin: 0 0 16px 0 !important;
+  font-size: 18px !important;
+  color: #ff6b35 !important;
+  font-weight: 600 !important;
+}
+
+.whatdidisign-summary-card .close-btn {
+  position: absolute !important;
+  top: 16px !important;
+  right: 16px !important;
+  background: none !important;
+  border: none !important;
+  font-size: 18px !important;
+  cursor: pointer !important;
+  color: #888888 !important;
+  padding: 4px !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s ease !important;
+}
+
+.whatdidisign-summary-card .close-btn:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
 }
 
 /* Loading indicator */
 .whatdidisign-loading {
   display: inline-block !important;
-  width: 16px !important;
-  height: 16px !important;
-  border: 2px solid #f3f3f3 !important;
-  border-top: 2px solid #333 !important;
+  width: 12px !important;
+  height: 12px !important;
+  border: 2px solid rgba(255, 107, 53, 0.3) !important;
+  border-top: 2px solid #ff6b35 !important;
   border-radius: 50% !important;
   animation: whatdidisign-spin 1s linear infinite !important;
 }
@@ -154,4 +620,17 @@
 @keyframes whatdidisign-spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .whatdidisign-tooltip {
+    max-width: 250px !important;
+    font-size: 11px !important;
+  }
+  
+  .whatdidisign-summary-card {
+    max-width: 90vw !important;
+    margin: 20px !important;
+  }
 }

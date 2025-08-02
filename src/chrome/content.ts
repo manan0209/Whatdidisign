@@ -33,6 +33,8 @@ class TCDetector {
   private observer: MutationObserver;
   private detectedLinks: DetectedLink[] = [];
   private isInitialized = false;
+  private currentTooltip: HTMLElement | null = null;
+  private currentAnalysisPopup: HTMLElement | null = null;
 
   constructor() {
     this.observer = new MutationObserver(this.handleMutations.bind(this));
@@ -282,45 +284,371 @@ class TCDetector {
   private addVisualIndicator(link: DetectedLink): void {
     const indicator = document.createElement('div');
     indicator.className = 'whatdidisign-indicator';
-    indicator.innerHTML = '📋';
-    indicator.style.cssText = `
-      position: absolute;
-      top: -5px;
-      right: -5px;
-      background: #4CAF50;
-      color: white;
-      border-radius: 50%;
-      width: 20px;
-      height: 20px;
-      font-size: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 10000;
-      cursor: pointer;
-    `;
+    indicator.setAttribute('data-url', link.url);
+    indicator.setAttribute('data-type', link.type);
 
     // Make parent element relatively positioned
     const parent = link.element.parentElement;
     if (parent) {
       parent.style.position = 'relative';
       parent.appendChild(indicator);
+      console.log('WhatDidISign: Added indicator for', link.type, 'link:', link.text);
     }
 
-    // Add click handler
+    // Add hover handlers for tooltip (only if no analysis popup is open)
+    indicator.addEventListener('mouseenter', (e) => {
+      if (!this.currentAnalysisPopup) {
+        console.log('WhatDidISign: Mouse entered indicator for', link.type);
+        this.showTooltip(indicator, link);
+      }
+    });
+
+    indicator.addEventListener('mouseleave', (e) => {
+      if (!this.currentAnalysisPopup) {
+        console.log('WhatDidISign: Mouse left indicator');
+        this.hideTooltip();
+      }
+    });
+
+    // Add click handler for full analysis popup
     indicator.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
+      console.log('WhatDidISign: Indicator clicked for', link.type);
       this.handleIndicatorClick(link);
     });
   }
 
   private handleIndicatorClick(link: DetectedLink): void {
-    chrome.runtime.sendMessage({
-      action: 'summarize',
-      url: link.url,
-      type: link.type
+    console.log('WhatDidISign: Indicator clicked for', link.type);
+    
+    // Remove any existing tooltip and show full analysis popup
+    this.hideTooltip();
+    this.showFullAnalysisPopup(link);
+  }
+
+  private showFullAnalysisPopup(link: DetectedLink): void {
+    // Remove any existing analysis popup
+    this.hideFullAnalysisPopup();
+
+    const popup = document.createElement('div');
+    popup.className = 'whatdidisign-analysis-popup';
+    popup.innerHTML = `
+      <div class="analysis-header">
+        <div class="analysis-title">
+          <span class="doc-type">${link.type === 'privacy' ? 'Privacy Policy' : 'Terms & Conditions'}</span>
+          <button class="close-btn" type="button">×</button>
+        </div>
+        <div class="analysis-url">${new URL(link.url).hostname}</div>
+      </div>
+      <div class="analysis-content">
+        <div class="loading-state">
+          <div class="loading-spinner"></div>
+          <div class="loading-text">Analyzing document with AI...</div>
+        </div>
+      </div>
+    `;
+
+    // Position popup optimally
+    document.body.appendChild(popup);
+    this.positionAnalysisPopup(popup);
+
+    // Add close button functionality
+    const closeBtn = popup.querySelector('.close-btn');
+    closeBtn?.addEventListener('click', () => {
+      this.hideFullAnalysisPopup();
     });
+
+    // Click outside to close
+    popup.addEventListener('click', (e) => {
+      if (e.target === popup) {
+        this.hideFullAnalysisPopup();
+      }
+    });
+
+    // Start analysis
+    this.performAnalysis(link, popup);
+
+    // Store reference
+    this.currentAnalysisPopup = popup;
+
+    // Show with animation
+    setTimeout(() => {
+      popup.classList.add('show');
+    }, 50);
+  }
+
+  private positionAnalysisPopup(popup: HTMLElement): void {
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const popupWidth = 480;
+    const popupHeight = 600;
+
+    // Center the popup in viewport
+    let leftPos = (viewportWidth - popupWidth) / 2;
+    let topPos = (viewportHeight - popupHeight) / 2;
+
+    // Ensure popup stays within viewport bounds
+    leftPos = Math.max(20, Math.min(leftPos, viewportWidth - popupWidth - 20));
+    topPos = Math.max(20, Math.min(topPos, viewportHeight - popupHeight - 20));
+
+    popup.style.left = `${leftPos}px`;
+    popup.style.top = `${topPos}px`;
+    popup.style.width = `${popupWidth}px`;
+    popup.style.maxHeight = `${Math.min(popupHeight, viewportHeight - 40)}px`;
+  }
+
+  private async performAnalysis(link: DetectedLink, popup: HTMLElement): Promise<void> {
+    try {
+      const summary = await new Promise<any>((resolve, reject) => {
+        chrome.runtime.sendMessage({
+          action: 'summarize',
+          url: link.url,
+          type: link.type
+        }, (response) => {
+          if (chrome.runtime.lastError) {
+            reject(new Error(chrome.runtime.lastError.message));
+          } else if (response?.error) {
+            reject(new Error(response.error));
+          } else {
+            resolve(response);
+          }
+        });
+      });
+
+      this.displayAnalysisResults(popup, summary);
+    } catch (error) {
+      console.error('Analysis failed:', error);
+      this.displayAnalysisError(popup, (error as Error).message || 'Analysis failed');
+    }
+  }
+
+  private displayAnalysisResults(popup: HTMLElement, summary: any): void {
+    const contentEl = popup.querySelector('.analysis-content');
+    if (!contentEl) return;
+
+    const riskLevel = summary.riskScore > 0.7 ? 'high' : summary.riskScore > 0.4 ? 'medium' : 'low';
+    const riskPercent = Math.round(summary.riskScore * 100);
+    const safetyAdvice = this.getSafetyAdvice(summary.riskScore);
+
+    contentEl.innerHTML = `
+      <div class="risk-assessment">
+        <div class="risk-score risk-${riskLevel}">
+          <div class="risk-number">${riskPercent}</div>
+          <div class="risk-label">Risk Score</div>
+        </div>
+        <div class="safety-advice">
+          <div class="advice-label">Recommendation</div>
+          <div class="advice-text">${safetyAdvice}</div>
+        </div>
+      </div>
+
+      ${summary.redFlags && summary.redFlags.length > 0 ? `
+        <div class="section warnings">
+          <h3>Major Warnings</h3>
+          <div class="warning-list">
+            ${summary.redFlags.slice(0, 3).map((flag: any) => `
+              <div class="warning-item severity-${flag.severity || 'medium'}">
+                <div class="warning-text">${flag.description}</div>
+                ${flag.quote ? `<div class="warning-quote">"${flag.quote.substring(0, 100)}..."</div>` : ''}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      ` : ''}
+
+      <div class="section key-points">
+        <h3>Key Points</h3>
+        <div class="points-list">
+          ${(summary.keyPoints || []).slice(0, 4).map((point: any) => `
+            <div class="point-item">${point}</div>
+          `).join('')}
+        </div>
+      </div>
+
+      ${summary.dataRights && summary.dataRights.length > 0 ? `
+        <div class="section data-rights">
+          <h3>Your Data Rights</h3>
+          <div class="rights-list">
+            ${summary.dataRights.slice(0, 3).map((right: any) => `
+              <div class="right-item ${right.available ? 'available' : 'unavailable'}">
+                <span class="right-name">${this.formatRightType(right.type)}</span>
+                <span class="right-status">${right.available ? 'Available' : 'Not Available'}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      ` : ''}
+
+      <div class="action-buttons">
+        <button class="btn-secondary" onclick="window.open('${summary.url}', '_blank')">View Full Document</button>
+        <button class="btn-primary" onclick="this.closest('.whatdidisign-analysis-popup').remove()">Got It</button>
+      </div>
+    `;
+  }
+
+  private getSafetyAdvice(riskScore: number): string {
+    if (riskScore > 0.7) {
+      return "Review carefully before accepting. Consider alternatives.";
+    } else if (riskScore > 0.4) {
+      return "Proceed with caution. Check the warnings below.";
+    } else {
+      return "Generally safe to accept with standard terms.";
+    }
+  }
+
+  private formatRightType(type: string): string {
+    const typeMap: Record<string, string> = {
+      'access': 'Data Access',
+      'deletion': 'Data Deletion',
+      'portability': 'Data Export',
+      'correction': 'Data Correction',
+      'opt-out': 'Opt-out Rights'
+    };
+    return typeMap[type] || type;
+  }
+
+  private displayAnalysisError(popup: HTMLElement, errorMessage: string): void {
+    const contentEl = popup.querySelector('.analysis-content');
+    if (!contentEl) return;
+
+    contentEl.innerHTML = `
+      <div class="error-state">
+        <div class="error-icon">!</div>
+        <div class="error-title">Analysis Failed</div>
+        <div class="error-message">${errorMessage}</div>
+        <div class="error-actions">
+          <button class="btn-secondary" onclick="window.open('${contentEl.closest('[data-url]')?.getAttribute('data-url')}', '_blank')">View Document Manually</button>
+          <button class="btn-primary" onclick="this.closest('.whatdidisign-analysis-popup').remove()">Close</button>
+        </div>
+      </div>
+    `;
+  }
+
+  private hideFullAnalysisPopup(): void {
+    if (this.currentAnalysisPopup) {
+      this.currentAnalysisPopup.classList.remove('show');
+      setTimeout(() => {
+        if (this.currentAnalysisPopup) {
+          this.currentAnalysisPopup.remove();
+          this.currentAnalysisPopup = null;
+        }
+      }, 300);
+    }
+  }
+
+  private showTooltip(indicator: HTMLElement, link: DetectedLink): void {
+    // Remove any existing tooltip
+    this.hideTooltip();
+
+    console.log('WhatDidISign: Creating tooltip for', link.type, 'link');
+
+    const tooltip = document.createElement('div');
+    tooltip.className = 'whatdidisign-tooltip';
+    tooltip.innerHTML = `
+      <div class="whatdidisign-tooltip-header">
+        <span class="whatdidisign-tooltip-title">${link.type === 'privacy' ? 'Privacy Policy' : 'Terms & Conditions'}</span>
+      </div>
+      <div class="whatdidisign-tooltip-content">
+        <div class="summary-text">Found ${link.type === 'privacy' ? 'Privacy Policy' : 'Terms & Conditions'} document</div>
+        <div class="whatdidisign-tooltip-actions">
+          <span style="font-size: 11px; color: #888;">Click dot to analyze with AI</span>
+        </div>
+      </div>
+    `;
+
+    // Position tooltip relative to indicator
+    document.body.appendChild(tooltip);
+    
+    const indicatorRect = indicator.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const tooltipWidth = 300; // approximate tooltip width
+    const tooltipHeight = 120; // approximate tooltip height
+    
+    // Position above the dot by default
+    let leftPos = indicatorRect.left + (indicatorRect.width / 2) - (tooltipWidth / 2);
+    let topPos = indicatorRect.top - tooltipHeight - 10; // 10px gap above the dot
+    let isBelow = false;
+    
+    // Adjust horizontal positioning to keep tooltip on screen
+    if (leftPos < 10) leftPos = 10;
+    if (leftPos + tooltipWidth > viewportWidth - 10) leftPos = viewportWidth - tooltipWidth - 10;
+    
+    // If tooltip would go above viewport, position it below the dot instead
+    if (topPos < 10) {
+      topPos = indicatorRect.bottom + 10;
+      isBelow = true;
+    }
+    
+    // If positioning below would go off bottom of screen, try to fit it in viewport
+    if (topPos + tooltipHeight > viewportHeight - 10) {
+      topPos = Math.max(10, viewportHeight - tooltipHeight - 10);
+    }
+    
+    tooltip.style.left = `${leftPos}px`;
+    tooltip.style.top = `${topPos}px`;
+    
+    // Add 'below' class if tooltip is positioned below the dot
+    if (isBelow) {
+      tooltip.classList.add('below');
+    }
+
+    console.log('WhatDidISign: Tooltip positioned at', tooltip.style.left, tooltip.style.top, 'isBelow:', isBelow);
+
+    // Add the show class to make it visible
+    setTimeout(() => {
+      tooltip.classList.add('show');
+    }, 50);
+
+    // Try to get cached summary (optional enhancement)
+    try {
+      chrome.runtime.sendMessage({
+        action: 'getSummary',
+        url: link.url,
+        type: link.type
+      }, (response) => {
+        console.log('WhatDidISign: Got summary response:', response);
+        const contentEl = tooltip.querySelector('.whatdidisign-tooltip-content');
+        if (contentEl && response && response.summary) {
+          // Create a simplified summary for the tooltip
+          const summary = response.summary;
+          let shortSummary = '';
+          
+          if (typeof summary === 'string') {
+            shortSummary = summary.substring(0, 150) + '...';
+          } else if (summary.keyPoints && summary.keyPoints.length > 0) {
+            shortSummary = summary.keyPoints[0].substring(0, 150) + '...';
+          } else {
+            shortSummary = 'AI summary available';
+          }
+          
+          contentEl.innerHTML = `
+            <div class="summary-text">${shortSummary}</div>
+            <div class="whatdidisign-tooltip-actions">
+              <span style="font-size: 11px; color: #888;">Click dot for full analysis</span>
+            </div>
+          `;
+        }
+      });
+    } catch (error) {
+      console.log('WhatDidISign: Could not fetch summary:', error);
+    }
+
+    // Store reference for cleanup
+    this.currentTooltip = tooltip;
+  }
+
+  private hideTooltip(): void {
+    if (this.currentTooltip) {
+      this.currentTooltip.classList.remove('show');
+      setTimeout(() => {
+        if (this.currentTooltip) {
+          this.currentTooltip.remove();
+          this.currentTooltip = null;
+        }
+      }, 300); // Wait for transition to complete
+    }
   }
 
   private startObserving(): void {

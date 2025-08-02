@@ -59,6 +59,17 @@ class BackgroundService {
           sendResponse(summary);
           break;
 
+        case 'getSummary':
+          const cachedSummary = this.getCachedSummary(message.url);
+          sendResponse(cachedSummary);
+          break;
+
+        case 'analyzeClicked':
+          // Start analysis in background and update badge
+          this.handleClickedAnalysis(message.url, message.type, message.text);
+          sendResponse({ success: true });
+          break;
+
         case 'getSettings':
           sendResponse(this.settings);
           break;
@@ -139,6 +150,43 @@ class BackgroundService {
     }
 
     return summary;
+  }
+
+  private getCachedSummary(url: string): { summary?: Summary } | null {
+    const cached = this.cache.get(url);
+    if (cached && !this.isCacheExpired(cached)) {
+      return { summary: cached.summary };
+    }
+    return null;
+  }
+
+  private async handleClickedAnalysis(url: string, type: string, text: string): Promise<void> {
+    try {
+      // Update badge to show analysis in progress
+      chrome.action.setBadgeText({ text: '...' });
+      chrome.action.setBadgeBackgroundColor({ color: '#ff6b35' });
+      
+      // Start generating summary in background
+      const summary = await this.generateSummary(url, type);
+      
+      // Update badge to show analysis complete
+      chrome.action.setBadgeText({ text: '✓' });
+      chrome.action.setBadgeBackgroundColor({ color: '#10b981' });
+      
+      // Show notification about analysis completion
+      if (this.settings.notifications) {
+        const riskLevel = summary.riskScore > 0.7 ? 'High Risk' : 
+                         summary.riskScore > 0.4 ? 'Medium Risk' : 'Low Risk';
+        this.showNotification(
+          `${text} Analysis Complete`,
+          `Risk Level: ${riskLevel} - Click extension to view details`
+        );
+      }
+    } catch (error) {
+      console.error('Failed to analyze clicked document:', error);
+      chrome.action.setBadgeText({ text: '!' });
+      chrome.action.setBadgeBackgroundColor({ color: '#ef4444' });
+    }
   }
 
   private async fetchDocument(url: string): Promise<string> {

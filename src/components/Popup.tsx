@@ -13,7 +13,30 @@ const Popup: React.FC = () => {
 
   useEffect(() => {
     loadData();
+    checkForClickedLink();
   }, []);
+
+  const checkForClickedLink = async () => {
+    try {
+      const result = await chrome.storage.local.get(['whatdidisign_clicked_link']);
+      const clickedLink = result.whatdidisign_clicked_link;
+      
+      if (clickedLink && clickedLink.clickedAt) {
+        // Check if this was clicked recently (within last 30 seconds)
+        const timeSinceClick = Date.now() - clickedLink.clickedAt;
+        if (timeSinceClick < 30000) {
+          // Auto-analyze the clicked link
+          console.log('Auto-analyzing clicked link:', clickedLink);
+          await handleSummarize(clickedLink);
+          
+          // Clear the clicked link so we don't auto-analyze again
+          await chrome.storage.local.remove(['whatdidisign_clicked_link']);
+        }
+      }
+    } catch (error) {
+      console.log('Could not check for clicked link:', error);
+    }
+  };
 
   const loadData = async () => {
     try {
