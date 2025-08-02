@@ -17,11 +17,94 @@ interface AIResponse {
   riskScore: number;
 }
 
+// Default API keys for rotation (your 4 Google accounts)
+// TODO: Replace these placeholder keys with your actual Google AI API keys
+const DEFAULT_API_KEYS = [
+  'PLACEHOLDER_API_KEY_1',
+  'PLACEHOLDER_API_KEY_1', 
+  'PLACEHOLDER_API_KEY_2',
+  'PLACEHOLDER_API_KEY_2'
+];
+
 export class AIService {
   private provider: AIProvider;
+  private static currentKeyIndex = 0;
+  private static requestCounts: Map<string, { count: number, resetTime: number }> = new Map();
+  private static readonly REQUESTS_PER_MINUTE = 15; // Gemini free tier limit
+  private static readonly MINUTE_IN_MS = 60 * 1000;
 
   constructor(provider: AIProvider) {
     this.provider = provider;
+  }
+
+  private static getNextApiKey(): string {
+    // Rotate through our default API keys
+    const key = DEFAULT_API_KEYS[this.currentKeyIndex];
+    this.currentKeyIndex = (this.currentKeyIndex + 1) % DEFAULT_API_KEYS.length;
+    return key;
+  }
+
+  private static isKeyRateLimited(apiKey: string): boolean {
+    const now = Date.now();
+    const keyStats = this.requestCounts.get(apiKey);
+    
+    if (!keyStats) {
+      return false;
+    }
+    
+    // Reset counter if minute has passed
+    if (now - keyStats.resetTime >= this.MINUTE_IN_MS) {
+      keyStats.count = 0;
+      keyStats.resetTime = now;
+      return false;
+    }
+    
+    return keyStats.count >= this.REQUESTS_PER_MINUTE;
+  }
+
+  public static checkKeyRateLimit(apiKey: string): boolean {
+    return this.isKeyRateLimited(apiKey);
+  }
+
+  private static incrementKeyUsage(apiKey: string): void {
+    const now = Date.now();
+    const keyStats = this.requestCounts.get(apiKey);
+    
+    if (!keyStats || now - keyStats.resetTime >= this.MINUTE_IN_MS) {
+      this.requestCounts.set(apiKey, { count: 1, resetTime: now });
+    } else {
+      keyStats.count++;
+    }
+  }
+
+  private getAvailableApiKey(): string {
+    // Check if default keys are properly configured
+    if (hasDefaultApiKeys()) {
+      // First, try to use our default API keys with rotation
+      for (let i = 0; i < DEFAULT_API_KEYS.length; i++) {
+        const key = AIService.getNextApiKey();
+        if (!AIService.isKeyRateLimited(key)) {
+          return key;
+        }
+      }
+    }
+    
+    // If default keys aren't configured or all are rate limited, use user's custom key
+    if (this.provider.apiKey && this.provider.apiKey.trim() !== '') {
+      if (!AIService.isKeyRateLimited(this.provider.apiKey)) {
+        console.log('Using user-provided API key');
+        return this.provider.apiKey;
+      }
+    }
+    
+    // If we have default keys but they're rate limited, use them anyway
+    if (hasDefaultApiKeys()) {
+      console.warn('All default API keys appear to be rate limited, attempting with rotated key');
+      return AIService.getNextApiKey();
+    }
+    
+    // No valid API keys available
+    throw new Error('No API keys configured. Please add your Google AI API key in settings or contact support.');
   }
 
   async summarizeDocument(content: string, url: string, type: string): Promise<Summary> {
@@ -42,6 +125,12 @@ export class AIService {
       return this.formatSummary(aiResponse, url, type);
     } catch (error) {
       console.error('AI summarization error:', error);
+      
+      // If it's a rate limit error, provide helpful message
+      if (error instanceof Error && error.message.includes('429')) {
+        throw new Error('Rate limit exceeded. Please try again in a moment or add your own API key in settings.');
+      }
+      
       throw new Error(`Failed to generate summary: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
@@ -49,9 +138,13 @@ export class AIService {
   private async callGeminiAPI(content: string, type: string): Promise<AIResponse> {
     const prompt = this.buildPrompt(content, type);
     
+    // Get available API key with rotation/fallback logic
+    const apiKey = this.getAvailableApiKey();
+    AIService.incrementKeyUsage(apiKey);
+    
     // Updated model name - Gemini 1.5 Flash is the current free model
     const modelName = 'gemini-1.5-flash';
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${this.provider.apiKey}`;
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
     
     const response = await fetch(apiUrl, {
       method: 'POST',
@@ -93,6 +186,12 @@ export class AIService {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
+      
+      // Handle rate limiting specifically
+      if (response.status === 429) {
+        throw new Error(`API rate limit exceeded (${response.status}). Our servers are busy - please try again in a moment.`);
+      }
+      
       throw new Error(`Gemini API error: ${response.status} - ${errorData.error?.message || response.statusText}`);
     }
 
@@ -109,11 +208,17 @@ export class AIService {
   private async callOpenAIAPI(content: string, type: string): Promise<AIResponse> {
     const prompt = this.buildPrompt(content, type);
     
+    // For OpenAI, we still use the user's API key since we don't provide OpenAI keys
+    const apiKey = this.provider.apiKey;
+    if (!apiKey || apiKey.trim() === '') {
+      throw new Error('OpenAI API key not configured. Please add your API key in settings or switch to Gemini (default).');
+    }
+    
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.provider.apiKey}`
+        'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
         model: this.provider.model || 'gpt-3.5-turbo',
@@ -134,6 +239,12 @@ export class AIService {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
+      
+      // Handle rate limiting specifically
+      if (response.status === 429) {
+        throw new Error(`OpenAI rate limit exceeded (${response.status}). Please try again in a moment.`);
+      }
+      
       throw new Error(`OpenAI API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
     }
 
@@ -264,19 +375,44 @@ Respond ONLY with valid JSON. Do not include any other text or explanations.
 // Default providers configuration
 export const DEFAULT_PROVIDERS: Record<string, AIProvider> = {
   gemini: {
-    name: 'Google Gemini',
-    apiKey: '',
+    name: 'Google Gemini (Default)',
+    apiKey: '', // This will be populated by our rotation system
     model: 'gemini-1.5-flash',
     endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent',
     costPer1K: 0, // Free tier
     provider: 'gemini'
   },
   openai: {
-    name: 'OpenAI GPT-3.5',
+    name: 'OpenAI GPT-3.5 (Custom Key Required)',
     apiKey: '',
     model: 'gpt-3.5-turbo',
     endpoint: 'https://api.openai.com/v1/chat/completions',
     costPer1K: 0.002,
     provider: 'openai'
   }
+};
+
+// Helper function to check if default API keys are configured
+export const hasDefaultApiKeys = (): boolean => {
+  return DEFAULT_API_KEYS.every(key => 
+    key && 
+    key.startsWith('AIzaSy') && 
+    key.length > 30 && 
+    !key.includes('_REPLACE_WITH_YOUR_') &&
+    !key.includes('_HERE')
+  );
+};
+
+// Helper function to get API rotation status
+export const getApiRotationStatus = (): { totalKeys: number, availableKeys: number, configured: boolean } => {
+  const configured = hasDefaultApiKeys();
+  const availableKeys = configured ? DEFAULT_API_KEYS.filter(key => 
+    !AIService.checkKeyRateLimit(key)
+  ).length : 0;
+  
+  return {
+    totalKeys: DEFAULT_API_KEYS.length,
+    availableKeys,
+    configured
+  };
 };

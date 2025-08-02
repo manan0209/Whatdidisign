@@ -1047,6 +1047,50 @@ body {
   background: #dc2626;
   transform: translateY(-1px);
 }
+/* API Status Info */
+.api-status-info {
+  margin-bottom: 16px;
+}
+
+.default-api-notice,
+.custom-api-notice {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.default-api-notice {
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(255, 107, 53, 0.05) 100%);
+  border: 1px solid rgba(255, 107, 53, 0.2);
+}
+
+.custom-api-notice {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.default-api-notice h4,
+.custom-api-notice h4 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.default-api-notice p,
+.custom-api-notice p {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.default-api-notice small,
+.custom-api-notice small {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
 
 /* Scrollbar */
 .tab-container::-webkit-scrollbar {

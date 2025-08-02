@@ -265,10 +265,8 @@ class BackgroundService {
   }
 
   private async createAISummary(content: string, type: string, url: string): Promise<Summary> {
-    if (!this.settings.aiProvider.apiKey) {
-      throw new Error('AI provider API key not configured');
-    }
-
+    // With our API rotation system, we don't require user to configure API keys anymore
+    // The AIService will handle rotation and fallback automatically
     const aiService = new AIService(this.settings.aiProvider);
     return await aiService.summarizeDocument(content, url, type);
   }

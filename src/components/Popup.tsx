@@ -147,20 +147,7 @@ const Popup: React.FC = () => {
 
   const LinksTab = () => (
     <div className="tab-content">
-      {isFirstTime && !settings?.aiProvider.apiKey && (
-        <div className="welcome-banner">
-          <div className="welcome-content">
-            <h4>Welcome to WhatDidISign!</h4>
-            <p>To get started, you'll need a free Google AI API key to power the document analysis.</p>
-            <button 
-              onClick={() => setActiveTab('settings')}
-              className="setup-btn"
-            >
-              Set Up API Key
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Extension now works out of the box with our default API rotation system */}
       
       <div className="header">
         <div className="header-content">
@@ -228,9 +215,9 @@ const Popup: React.FC = () => {
               <div className="link-actions">
                 <button 
                   onClick={() => handleSummarize(link)}
-                  disabled={loading || !settings?.aiProvider.apiKey}
+                  disabled={loading}
                   className="analyze-btn"
-                  title={!settings?.aiProvider.apiKey ? 'Set up API key first' : 'Analyze with AI'}
+                  title="Analyze with AI"
                 >
                   {loading ? (
                     <>
@@ -447,14 +434,34 @@ const Popup: React.FC = () => {
                 });
               }}
             >
-              <option value="gemini">Google Gemini (Free)</option>
-              <option value="openai">OpenAI GPT-3.5 (Paid)</option>
+              <option value="gemini">Google Gemini (Works out of the box)</option>
+              <option value="openai">OpenAI GPT-3.5 (Custom key required)</option>
             </select>
           </div>
           
           <div className="setting-group">
+            <div className="api-status-info">
+              {localSettings.preferredProvider === 'gemini' ? (
+                <div className="default-api-notice">
+                  <h4> No setup required!</h4>
+                  <p>WhatDidISign includes Google AI access for instant document analysis.</p>
+                  <small>
+                    <strong>Optional:</strong> Add your own API key below for additional requests or as a backup.
+                  </small>
+                </div>
+              ) : (
+                <div className="custom-api-notice">
+                  <h4> Custom API key required</h4>
+                  <p>OpenAI requires your own API key. Switch to Gemini for instant access without setup.</p>
+                </div>
+              )}
+            </div>
+            
             <label>
-              {localSettings.preferredProvider === 'gemini' ? 'Google AI API Key:' : 'OpenAI API Key:'}
+              {localSettings.preferredProvider === 'gemini' 
+                ? 'Personal Google AI API Key (Optional):' 
+                : 'OpenAI API Key (Required):'
+              }
             </label>
             <input
               type="password"
@@ -467,20 +474,20 @@ const Popup: React.FC = () => {
                 }
               })}
               placeholder={localSettings.preferredProvider === 'gemini' 
-                ? 'Enter your Google AI API key' 
-                : 'Enter your OpenAI API key'
+                ? 'Optional: Your personal Google AI API key' 
+                : 'Required: Enter your OpenAI API key'
               }
             />
             <div className="api-help">
               {localSettings.preferredProvider === 'gemini' ? (
                 <small>
-                  Get your free API key at: <a href="https://makersuite.google.com/app/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio</a>
-                  <br />✅ Free tier: 15 requests/minute, 1,500/day
+                  <strong>Optional fallback:</strong> Get your own key at <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio</a> for additional requests beyond our shared quota.
+                  <br />Your key gets additional 15 requests/minute, 1,500/day
                 </small>
               ) : (
                 <small>
                   Get your API key at: <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer">OpenAI Platform</a>
-                  <br />💰 Paid: ~$0.002 per 1K tokens
+                  <br />Paid: ~$0.002 per 1K tokens
                 </small>
               )}
             </div>
