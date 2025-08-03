@@ -131,3 +131,5 @@ debug.log
 **/secrets.json
 config/production.json
 config/local.json
+build-with-keys.sh
+api-keys.ts

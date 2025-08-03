@@ -17,11 +17,13 @@ interface AIResponse {
   riskScore: number;
 }
 
+// Placeholder API keys for GitHub (replaced during build process)
+// The built extension will have working API keys injected
 const DEFAULT_API_KEYS = [
   'PLACEHOLDER_API_KEY_1',
-  'PLACEHOLDER_API_KEY_1', 
-  'PLACEHOLDER_API_KEY_2',
-  'PLACEHOLDER_API_KEY_2'
+  'PLACEHOLDER_API_KEY_2', 
+  'PLACEHOLDER_API_KEY_3',
+  'PLACEHOLDER_API_KEY_4'
 ];
 
 export class AIService {
