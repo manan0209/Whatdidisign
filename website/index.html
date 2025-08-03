@@ -40,6 +40,7 @@
                 <a href="#features" class="nav-link">Features</a>
                 <a href="#how-it-works" class="nav-link">How It Works</a>
                 <a href="#install" class="nav-link">Install</a>
+                <a href="#demo" class="nav-link">Demo</a>
                 <a href="https://github.com/manan0209/WhatDidISign" class="nav-link" target="_blank">GitHub</a>
             </div>
             <button class="install-btn" onclick="installExtension()">
@@ -67,13 +68,13 @@
                     providing instant summaries with risk assessments. Know what you're agreeing to before you click.
                 </p>
                 <div class="hero-actions">
-                    <button class="cta-button" onclick="installExtension()">
+                    <button class="cta-button" onclick="scrollToInstall()">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                             <polyline points="7,10 12,15 17,10"></polyline>
                             <line x1="12" y1="15" x2="12" y2="3"></line>
                         </svg>
-                        Install Free Extension
+                        Get Started (Free)
                     </button>
                     <a href="#demo" class="demo-button">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -84,16 +85,16 @@
                 </div>
                 <div class="hero-stats">
                     <div class="stat">
-                        <span class="stat-number">0</span>
+                        <span class="stat-number">AI</span>
+                        <span class="stat-label">Built IN</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">Zero</span>
                         <span class="stat-label">Setup Required</span>
                     </div>
                     <div class="stat">
-                        <span class="stat-number">60</span>
-                        <span class="stat-label">Requests/Minute</span>
-                    </div>
-                    <div class="stat">
                         <span class="stat-number">100%</span>
-                        <span class="stat-label">Free</span>
+                        <span class="stat-label">Free & Open Source</span>
                     </div>
                 </div>
             </div>
@@ -110,6 +111,287 @@
         </div>
     </section>
 
+
+        <!-- Installation Section -->
+    <section id="install" class="install">
+        <div class="container">
+            <div class="install-header">
+                <h2 class="install-title">Install WhatDidISign</h2>
+                <p class="install-description">
+                    Get up and running in under 5 minutes. No Chrome Web Store needed - install directly from GitHub.
+                </p>
+            </div>
+            
+            <!-- Installation Tabs -->
+            <div class="install-tabs">
+                <button class="tab-button active" onclick="showTab('quick')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+                    </svg>
+                    Quick Install
+                </button>
+                <button class="tab-button" onclick="showTab('detailed')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14,2 14,8 20,8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10,9 9,9 8,9"></polyline>
+                    </svg>
+                    Detailed Guide
+                </button>
+            </div>
+            
+            <!-- Quick Install Tab -->
+            <div id="quick-tab" class="tab-content active">
+                <div class="quick-install">
+                    <div class="install-steps-visual">
+                        <div class="install-step-card">
+                            <div class="step-icon">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7,10 12,15 17,10"></polyline>
+                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                            </div>
+                            <h3>1. Download</h3>
+                            <p>Get the latest release from GitHub</p>
+                            <a href="https://github.com/manan0209/WhatDidISign/releases/latest" class="download-btn" target="_blank">
+                                Download Extension
+                            </a>
+                        </div>
+                        
+                        <div class="install-step-card">
+                            <div class="step-icon">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14,2 14,8 20,8"></polyline>
+                                </svg>
+                            </div>
+                            <h3>2. Extract</h3>
+                            <p>Unzip the downloaded file to a folder</p>
+                            <div class="code-snippet">
+                                <code>Right-click → Extract All</code>
+                            </div>
+                        </div>
+                        
+                        <div class="install-step-card">
+                            <div class="step-icon">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+                                    <line x1="7" y1="2" x2="7" y2="22"></line>
+                                    <line x1="17" y1="2" x2="17" y2="22"></line>
+                                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                                    <line x1="2" y1="7" x2="7" y2="7"></line>
+                                    <line x1="2" y1="17" x2="7" y2="17"></line>
+                                    <line x1="17" y1="17" x2="22" y2="17"></line>
+                                    <line x1="17" y1="7" x2="22" y2="7"></line>
+                                </svg>
+                            </div>
+                            <h3>3. Load in Chrome</h3>
+                            <p>Add to Chrome Extensions</p>
+                            <button class="help-btn" onclick="showDetailed()">Show Me How</button>
+                        </div>
+                    </div>
+                    
+                    <div class="install-cta-section">
+                        <h3>Ready to Get Started?</h3>
+                        <a href="https://github.com/manan0209/WhatDidISign/releases/latest" class="install-cta" target="_blank">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7,10 12,15 17,10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            Download WhatDidISign Now
+                        </a>
+                        <p class="install-note">
+                            <strong>100% Free</strong> • No account required • Works immediately after install
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Detailed Install Tab -->
+            <div id="detailed-tab" class="tab-content">
+                <div class="detailed-install">
+                    <div class="step-by-step">
+                        <div class="detailed-step">
+                            <div class="step-header">
+                                <span class="step-number">1</span>
+                                <h3>Download the Extension</h3>
+                            </div>
+                            <div class="step-content">
+                                <p>Click the button below to download the latest version of WhatDidISign from GitHub Releases.</p>
+                                <a href="https://github.com/manan0209/WhatDidISign/releases/latest" class="download-button" target="_blank">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                        <polyline points="7,10 12,15 17,10"></polyline>
+                                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                                    </svg>
+                                    Download Latest Release
+                                </a>
+                                <div class="step-note">
+                                    <strong>Note:</strong> Look for the <code>WhatDidISign-v1.0.0.zip</code> file in the Assets section.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="detailed-step">
+                            <div class="step-header">
+                                <span class="step-number">2</span>
+                                <h3>Extract the ZIP File</h3>
+                            </div>
+                            <div class="step-content">
+                                <p>After downloading, extract the ZIP file to a folder on your computer.</p>
+                                <div class="os-instructions">
+                                    <div class="os-tab">
+                                        <strong>Windows:</strong> Right-click the ZIP file → "Extract All"
+                                    </div>
+                                    <div class="os-tab">
+                                        <strong>Mac:</strong> Double-click the ZIP file to extract
+                                    </div>
+                                    <div class="os-tab">
+                                        <strong>Linux:</strong> Right-click → "Extract Here"
+                                    </div>
+                                </div>
+                                <div class="step-note">
+                                    <strong>Important:</strong> Remember where you extracted the files - you'll need this folder location.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="detailed-step">
+                            <div class="step-header">
+                                <span class="step-number">3</span>
+                                <h3>Open Chrome Extensions Page</h3>
+                            </div>
+                            <div class="step-content">
+                                <p>Open Google Chrome and navigate to the Extensions management page.</p>
+                                <div class="chrome-methods">
+                                    <div class="method">
+                                        <strong>Method 1:</strong> Type <code class="url-code">chrome://extensions/</code> in the address bar
+                                    </div>
+                                    <div class="method">
+                                        <strong>Method 2:</strong> Chrome Menu (⋮) → More Tools → Extensions
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="detailed-step">
+                            <div class="step-header">
+                                <span class="step-number">4</span>
+                                <h3>Enable Developer Mode</h3>
+                            </div>
+                            <div class="step-content">
+                                <p>In the top-right corner of the Extensions page, toggle "Developer mode" ON.</p>
+                                <div class="developer-mode-visual">
+                                    <div class="toggle-demo">
+                                        <span>Developer mode</span>
+                                        <div class="toggle-switch active"></div>
+                                    </div>
+                                </div>
+                                <div class="step-note">
+                                    When enabled, you'll see new buttons appear: "Load unpacked", "Pack extension", "Update"
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="detailed-step">
+                            <div class="step-header">
+                                <span class="step-number">5</span>
+                                <h3>Load the Extension</h3>
+                            </div>
+                            <div class="step-content">
+                                <p>Click the "Load unpacked" button and select the folder you extracted in Step 2.</p>
+                                <div class="load-instructions">
+                                    <ol>
+                                        <li>Click <strong>"Load unpacked"</strong></li>
+                                        <li>Navigate to your extracted folder</li>
+                                        <li>Select the <strong>entire folder</strong> (not individual files)</li>
+                                        <li>Click <strong>"Select Folder"</strong></li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="detailed-step success">
+                            <div class="step-header">
+                                <span class="step-number">✓</span>
+                                <h3>You're All Set!</h3>
+                            </div>
+                            <div class="step-content">
+                                <p>WhatDidISign should now appear in your extensions list and browser toolbar.</p>
+                                <div class="success-checklist">
+                                    <div class="check-item">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="20,6 9,17 4,12"></polyline>
+                                        </svg>
+                                        Extension icon visible in toolbar
+                                    </div>
+                                    <div class="check-item">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="20,6 9,17 4,12"></polyline>
+                                        </svg>
+                                        Orange dots appear on websites with Terms/Privacy links
+                                    </div>
+                                    <div class="check-item">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="20,6 9,17 4,12"></polyline>
+                                        </svg>
+                                        Click dots to get AI analysis
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="troubleshooting">
+                        <h3>Troubleshooting</h3>
+                        <div class="faq-list">
+                            <div class="faq-item">
+                                <button class="faq-question" onclick="toggleFaq(this)">
+                                    Extension doesn't appear after loading?
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="6,9 12,15 18,9"></polyline>
+                                    </svg>
+                                </button>
+                                <div class="faq-answer">
+                                    <p>Make sure you selected the correct folder containing the manifest.json file. If it still doesn't work, try refreshing the Extensions page and loading again.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="faq-item">
+                                <button class="faq-question" onclick="toggleFaq(this)">
+                                    "Load unpacked" button not visible?
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="6,9 12,15 18,9"></polyline>
+                                    </svg>
+                                </button>
+                                <div class="faq-answer">
+                                    <p>Make sure Developer mode is toggled ON. The toggle should be blue/enabled in the top-right corner of the Extensions page.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="faq-item">
+                                <button class="faq-question" onclick="toggleFaq(this)">
+                                    Orange dots not appearing on websites?
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="6,9 12,15 18,9"></polyline>
+                                    </svg>
+                                </button>
+                                <div class="faq-answer">
+                                    <p>Try refreshing the webpage after installing the extension. Some sites may take a moment to scan for legal document links.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
     <!-- Features Section -->
     <section id="features" class="features">
         <div class="container">
@@ -194,6 +476,88 @@
         </div>
     </section>
 
+    <!-- Demo Section -->
+    <section id="demo" class="demo">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">See It In Action</h2>
+                <p class="section-subtitle">Watch how WhatDidISign protects you from hidden legal traps</p>
+            </div>
+            
+            <div class="demo-content">
+                <div class="demo-video">
+                    <!-- Placeholder for demo video - you'll add this -->
+                    <div class="video-placeholder">
+                        <div class="play-button">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="5,3 19,12 5,21"></polygon>
+                            </svg>
+                        </div>
+                        <p>Demo Video Coming Soon</p>
+                        <small>Shows real-time detection and analysis</small>
+                    </div>
+                </div>
+                
+                <div class="demo-features">
+                    <div class="demo-feature">
+                        <div class="demo-icon">
+                            <div class="orange-dot"></div>
+                        </div>
+                        <div class="demo-text">
+                            <h4>Instant Detection</h4>
+                            <p>Orange dots appear next to Terms & Privacy links automatically</p>
+                        </div>
+                    </div>
+                    
+                    <div class="demo-feature">
+                        <div class="demo-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                            </svg>
+                        </div>
+                        <div class="demo-text">
+                            <h4>AI Analysis</h4>
+                            <p>Hover for quick preview, click for full risk assessment</p>
+                        </div>
+                    </div>
+                    
+                    <div class="demo-feature">
+                        <div class="demo-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 12l2 2 4-4"></path>
+                                <path d="M21 12c.552 0 1-.448 1-1V5c0-.552-.448-1-1-1H3c-.552 0-1 .448-1 1v6c0 .552.448 1 1 1h18z"></path>
+                            </svg>
+                        </div>
+                        <div class="demo-text">
+                            <h4>Risk Assessment</h4>
+                            <p>Get clear low/medium/high risk ratings with explanations</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="demo-screenshots">
+                <div class="screenshot-grid">
+                    <div class="screenshot-item">
+                        <img src="assets/screenshot-detection.png" alt="Link Detection" class="screenshot-img">
+                        <h4>Smart Detection</h4>
+                        <p>Automatically finds legal document links</p>
+                    </div>
+                    <div class="screenshot-item">
+                        <img src="assets/screenshot-analysis.png" alt="AI Analysis" class="screenshot-img">
+                        <h4>AI Analysis</h4>
+                        <p>Comprehensive summaries with risk scores</p>
+                    </div>
+                    <div class="screenshot-item">
+                        <img src="assets/screenshot-popup.png" alt="Extension Popup" class="screenshot-img">
+                        <h4>Clean Interface</h4>
+                        <p>Beautiful, easy-to-use popup design</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- How It Works Section -->
     <section id="how-it-works" class="how-it-works">
         <div class="container">
@@ -234,44 +598,6 @@
         </div>
     </section>
 
-    <!-- Installation Section -->
-    <section id="install" class="install">
-        <div class="container">
-            <div class="install-content">
-                <h2 class="install-title">Ready to Take Control?</h2>
-                <p class="install-description">
-                    Install WhatDidISign now and never sign legal documents blindly again. 
-                    Works out of the box with our built-in AI system.
-                </p>
-                <div class="install-steps">
-                    <div class="install-step">
-                        <span class="step-badge">1</span>
-                        <span>Click "Install Extension"</span>
-                    </div>
-                    <div class="install-step">
-                        <span class="step-badge">2</span>
-                        <span>Add to Chrome (free)</span>
-                    </div>
-                    <div class="install-step">
-                        <span class="step-badge">3</span>
-                        <span>Start browsing protected</span>
-                    </div>
-                </div>
-                <button class="install-cta" onclick="installExtension()">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                        <polyline points="7,10 12,15 17,10"></polyline>
-                        <line x1="12" y1="15" x2="12" y2="3"></line>
-                    </svg>
-                    Install WhatDidISign Extension
-                </button>
-                <p class="install-note">
-                    Free forever • No setup required • Works immediately
-                </p>
-            </div>
-        </div>
-    </section>
-
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
@@ -283,12 +609,12 @@
                 <div class="footer-links">
                     <a href="https://github.com/manan0209/WhatDidISign" target="_blank" class="footer-link">GitHub</a>
                     <a href="https://github.com/manan0209/WhatDidISign/issues" target="_blank" class="footer-link">Support</a>
-                    <a href="#" class="footer-link">Privacy</a>
+                    <a href="privacy.html" class="footer-link">Privacy</a>
                 </div>
             </div>
             <div class="footer-bottom">
                 <p class="footer-copyright">
-                    © 2025 WhatDidISign. Made with ❤️ for a more transparent internet.
+                    © 2025 WhatDidISign. Made with <span style="color: orange;">care</span> for a more transparent internet.
                 </p>
                 <p class="footer-disclaimer">
                     <em>Not a substitute for legal advice. Always consult with a qualified attorney for important legal decisions.</em>

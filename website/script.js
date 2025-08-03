@@ -2,13 +2,97 @@
 
 // Installation function
 function installExtension() {
-    // Check if Chrome extension API is available
-    if (typeof chrome !== 'undefined' && chrome.webstore) {
-        // If on Chrome, try to open extension page
-        window.open('https://github.com/manan0209/WhatDidISign/releases/latest', '_blank');
-    } else {
-        // Fallback to GitHub releases
-        window.open('https://github.com/manan0209/WhatDidISign/releases/latest', '_blank');
+    // Direct to GitHub releases for manual installation
+    window.open('https://github.com/manan0209/WhatDidISign/releases/latest', '_blank');
+}
+
+// Tab switching functionality
+function showTab(tabName) {
+  // Hide all tab contents
+  const tabContents = document.querySelectorAll('.tab-content');
+  tabContents.forEach(content => {
+    content.classList.remove('active');
+  });
+  
+  // Remove active class from all buttons
+  const tabButtons = document.querySelectorAll('.tab-button');
+  tabButtons.forEach(button => {
+    button.classList.remove('active');
+  });
+  
+  // Show selected tab and activate button
+  document.getElementById(tabName).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// FAQ toggle functionality
+function toggleFaq(element) {
+  const faqItem = element.parentElement;
+  const isOpen = faqItem.classList.contains('open');
+  
+  // Close all other FAQ items
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.classList.remove('open');
+  });
+  
+  // Toggle current item
+  if (!isOpen) {
+    faqItem.classList.add('open');
+  }
+}
+
+// Smooth scroll to installation section
+function scrollToInstall() {
+  document.getElementById('install').scrollIntoView({ 
+    behavior: 'smooth' 
+  });
+}
+
+// Download tracking (can be connected to analytics later)
+function trackDownload() {
+  // Analytics tracking code would go here
+  console.log('Extension download initiated');
+}
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+  // Set default tab
+  document.querySelector('.tab-button').click();
+  
+  // Add any additional initialization code here
+  console.log('WhatDidISign website loaded');
+});
+
+// Show detailed installation
+function showDetailed() {
+    showTab('detailed');
+    scrollToInstall();
+}
+
+// Tab switching for installation
+function showTab(tabName) {
+    // Remove active class from all tabs and content
+    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    
+    // Add active class to selected tab and content
+    document.querySelector(`[onclick="showTab('${tabName}')"]`).classList.add('active');
+    document.querySelector(`#${tabName}-tab`).classList.add('active');
+}
+
+// FAQ toggle functionality
+function toggleFaq(element) {
+    const faqItem = element.parentElement;
+    const isOpen = faqItem.classList.contains('open');
+    
+    // Close all other FAQs
+    document.querySelectorAll('.faq-item').forEach(item => {
+        item.classList.remove('open');
+    });
+    
+    // Toggle current FAQ
+    if (!isOpen) {
+        faqItem.classList.add('open');
     }
 }
 
