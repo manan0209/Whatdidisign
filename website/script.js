@@ -3,7 +3,7 @@
 // Installation function
 function installExtension() {
     // Direct to GitHub releases for manual installation
-    window.open('https://github.com/manan0209/WhatDidISign/releases/latest', '_blank');
+    window.open('https://github.com/manan0209/Whatdidisign/releases/download/v1.0.0/WhatDidISign-v1.0.0.zip');
 }
 
 // Tab switching functionality
