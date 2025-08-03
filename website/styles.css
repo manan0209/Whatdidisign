@@ -94,6 +94,12 @@ body {
   color: var(--primary-color);
 }
 
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .install-btn {
   display: flex;
   align-items: center;
@@ -111,6 +117,37 @@ body {
 .install-btn:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-hover);
+}
+
+.star-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 2px solid var(--border-color);
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-weight: 500;
+  text-decoration: none;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.star-btn:hover {
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+  background: rgba(255, 107, 53, 0.1);
+  transform: translateY(-1px);
+}
+
+.star-btn svg {
+  transition: fill 0.2s ease;
+}
+
+.star-btn:hover svg {
+  fill: var(--primary-color);
 }
 
 /* Hero Section */
@@ -1334,6 +1371,18 @@ body {
   
   .nav-links {
     display: none;
+  }
+  
+  .nav-actions {
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+  
+  .star-btn,
+  .install-btn {
+    width: 100%;
+    justify-content: center;
   }
   
   .hero-content {
