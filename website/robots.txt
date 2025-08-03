@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://whatdidisign.tech/sitemap.xml
+
+# Block unnecessary files
+Disallow: /assets/
+Allow: /assets/*.png
+Allow: /assets/*.jpg
+Allow: /assets/*.svg

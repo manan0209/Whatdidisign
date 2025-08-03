@@ -6,6 +6,9 @@
     <title>WhatDidISign - Never Sign Blindly Again</title>
     <meta name="description" content="AI-powered Chrome extension that detects Terms & Conditions and Privacy Policy links, providing instant summaries with risk assessments.">
     <meta name="keywords" content="terms of service, privacy policy, AI analysis, Chrome extension, legal documents, consumer protection">
+    <meta name="author" content="WhatDidISign Team">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://whatdidisign.tech/">
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
@@ -27,6 +30,28 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "WhatDidISign",
+      "description": "AI-powered Chrome extension that detects Terms & Conditions and Privacy Policy links, providing instant summaries with risk assessments.",
+      "url": "https://whatdidisign.tech",
+      "applicationCategory": "BrowserApplication",
+      "operatingSystem": "Chrome",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "author": {
+        "@type": "Organization",
+        "name": "WhatDidISign Team"
+      }
+    }
+    </script>
 </head>
 <body>
     <!-- Header -->
@@ -42,6 +67,7 @@
                 <a href="#install" class="nav-link">Install</a>
                 <a href="#demo" class="nav-link">Demo</a>
                 <a href="https://github.com/manan0209/WhatDidISign" class="nav-link" target="_blank">GitHub</a>
+                <a href="privacy.html" class="nav-link">Privacy</a>
             </div>
             <button class="install-btn" onclick="installExtension()">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -245,13 +271,13 @@
                                 <p>After downloading, extract the ZIP file to a folder on your computer.</p>
                                 <div class="os-instructions">
                                     <div class="os-tab">
-                                        <strong>Windows:</strong> Right-click the ZIP file → "Extract All"
+                                        <strong>Windows:</strong> Right click the ZIP file → "Extract All"
                                     </div>
                                     <div class="os-tab">
-                                        <strong>Mac:</strong> Double-click the ZIP file to extract
+                                        <strong>Mac:</strong> Double click the ZIP file to extract
                                     </div>
                                     <div class="os-tab">
-                                        <strong>Linux:</strong> Right-click → "Extract Here"
+                                        <strong>Linux:</strong> Right click → "Extract Here"
                                     </div>
                                 </div>
                                 <div class="step-note">
@@ -284,7 +310,7 @@
                                 <h3>Enable Developer Mode</h3>
                             </div>
                             <div class="step-content">
-                                <p>In the top-right corner of the Extensions page, toggle "Developer mode" ON.</p>
+                                <p>In the top right corner of the Extensions page, toggle "Developer mode" ON.</p>
                                 <div class="developer-mode-visual">
                                     <div class="toggle-demo">
                                         <span>Developer mode</span>
