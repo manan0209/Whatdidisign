@@ -17,8 +17,6 @@ interface AIResponse {
   riskScore: number;
 }
 
-// Default API keys for rotation (your 4 Google accounts)
-// TODO: Replace these placeholder keys with your actual Google AI API keys
 const DEFAULT_API_KEYS = [
   'PLACEHOLDER_API_KEY_1',
   'PLACEHOLDER_API_KEY_1', 
@@ -30,7 +28,7 @@ export class AIService {
   private provider: AIProvider;
   private static currentKeyIndex = 0;
   private static requestCounts: Map<string, { count: number, resetTime: number }> = new Map();
-  private static readonly REQUESTS_PER_MINUTE = 15; // Gemini free tier limit
+  private static readonly REQUESTS_PER_MINUTE = 15; 
   private static readonly MINUTE_IN_MS = 60 * 1000;
 
   constructor(provider: AIProvider) {
@@ -38,7 +36,7 @@ export class AIService {
   }
 
   private static getNextApiKey(): string {
-    // Rotate through our default API keys
+    // Rotate
     const key = DEFAULT_API_KEYS[this.currentKeyIndex];
     this.currentKeyIndex = (this.currentKeyIndex + 1) % DEFAULT_API_KEYS.length;
     return key;
@@ -51,8 +49,6 @@ export class AIService {
     if (!keyStats) {
       return false;
     }
-    
-    // Reset counter if minute has passed
     if (now - keyStats.resetTime >= this.MINUTE_IN_MS) {
       keyStats.count = 0;
       keyStats.resetTime = now;

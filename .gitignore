@@ -23,7 +23,8 @@ backend/.env.*
 .vscode-test/
 *.vsix
 .github/
-
+meta.js
+system.sh
 
 # Chrome extension packaging
 *.crx
