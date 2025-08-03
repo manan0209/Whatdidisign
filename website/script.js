@@ -69,6 +69,23 @@ function showDetailed() {
     scrollToInstall();
 }
 
+// Scroll to video guide section
+function scrollToVideoGuide() {
+    // First show the quick install tab
+    showTab('quick');
+    
+    // Then scroll to the video guide section
+    setTimeout(() => {
+        const videoSection = document.querySelector('.install-cta-section');
+        if (videoSection) {
+            videoSection.scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'center'
+            });
+        }
+    }, 100);
+}
+
 // Tab switching for installation
 function showTab(tabName) {
     // Remove active class from all tabs and content
@@ -233,9 +250,66 @@ let clickCount = 0;
 document.querySelector('.logo').addEventListener('click', function() {
     clickCount++;
     if (clickCount === 7) {
-        console.log('🎉 Made with ❤️ by the WhatDidISign team!');
-        console.log('🔧 Built with: TypeScript, React, Chrome Extension APIs, Google AI');
-        console.log('🌟 Star us on GitHub: https://github.com/manan0209/WhatDidISign');
+        console.log(' Made with care by the devmnn!');
+        console.log(' Built with: TypeScript, React, Chrome Extension APIs, Google AI');
+        console.log(' Star us on GitHub: https://github.com/manan0209/WhatDidISign');
         clickCount = 0;
     }
+});
+
+// Custom Video Player Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const videoPlayers = document.querySelectorAll('.custom-video-player');
+    
+    videoPlayers.forEach(player => {
+        const video = player.querySelector('video');
+        const playBtn = player.querySelector('.play-icon');
+        const pauseBtn = player.querySelector('.pause-icon');
+        const playPauseBtn = player.querySelector('.play-pause-btn');
+        
+        // Play/Pause click handler
+        playPauseBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            
+            if (video.paused) {
+                video.play();
+                playBtn.style.display = 'none';
+                pauseBtn.style.display = 'block';
+                player.classList.add('playing');
+            } else {
+                video.pause();
+                playBtn.style.display = 'block';
+                pauseBtn.style.display = 'none';
+                player.classList.remove('playing');
+            }
+        });
+        
+        // Click anywhere on video to play/pause
+        player.addEventListener('click', function() {
+            playPauseBtn.click();
+        });
+        
+        // Video ended handler
+        video.addEventListener('ended', function() {
+            playBtn.style.display = 'block';
+            pauseBtn.style.display = 'none';
+            player.classList.remove('playing');
+        });
+        
+        // Video pause handler (for other pause events)
+        video.addEventListener('pause', function() {
+            if (!video.ended) {
+                playBtn.style.display = 'block';
+                pauseBtn.style.display = 'none';
+                player.classList.remove('playing');
+            }
+        });
+        
+        // Video play handler
+        video.addEventListener('play', function() {
+            playBtn.style.display = 'none';
+            pauseBtn.style.display = 'block';
+            player.classList.add('playing');
+        });
+    });
 });

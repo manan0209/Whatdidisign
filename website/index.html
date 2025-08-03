@@ -66,7 +66,7 @@
                 <a href="#how-it-works" class="nav-link">How It Works</a>
                 <a href="#install" class="nav-link">Install</a>
                 <a href="#demo" class="nav-link">Demo</a>
-                <a href="https://github.com/manan0209/WhatDidISign" class="nav-link" target="_blank">GitHub</a>
+                <a href="https://github.com/manan0209/Whatdidisign" class="nav-link" target="_blank">GitHub</a>
                 <a href="privacy.html" class="nav-link">Privacy</a>
             </div>
             <button class="install-btn" onclick="installExtension()">
@@ -126,7 +126,11 @@
             </div>
             <div class="hero-visual">
                 <div class="extension-preview">
-                    <img src="assets/extension-demo.png" alt="WhatDidISign Extension Demo" class="demo-image">
+                    <video class="demo-video" autoplay muted loop playsinline>
+                        <source src="assets/demo.mov" type="video/mp4">
+                        <source src="assets/demo.mov" type="video/quicktime">
+                        Your browser does not support the video tag.
+                    </video>
                     <div class="floating-elements">
                         <div class="floating-dot dot-1"></div>
                         <div class="floating-dot dot-2"></div>
@@ -165,6 +169,12 @@
                         <polyline points="10,9 9,9 8,9"></polyline>
                     </svg>
                     Detailed Guide
+                </button>
+                <button class="tab-button" onclick="scrollToVideoGuide()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="5,3 19,12 5,21"></polygon>
+                    </svg>
+                    Video Walkthrough
                 </button>
             </div>
             
@@ -221,6 +231,27 @@
                     </div>
                     
                     <div class="install-cta-section">
+                        <div class="install-demo-video">
+                            <h3>Watch Installation Guide</h3>
+                            <div class="custom-video-player install-player">
+                                <video class="install-video" muted>
+                                    <source src="assets/installdemo.mov" type="video/mp4">
+                                    <source src="assets/installdemo.mov" type="video/quicktime">
+                                    Your browser does not support the video tag.
+                                </video>
+                                <div class="video-overlay">
+                                    <div class="play-pause-btn">
+                                        <svg class="play-icon" width="auto" height="40" viewBox="0 0 24 24" fill="none">
+                                            <polygon points="5,3 19,12 5,21" fill="currentColor"></polygon>
+                                        </svg>
+                                        <svg class="pause-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" style="display: none;">
+                                            <rect x="6" y="4" width="4" height="16" fill="currentColor"></rect>
+                                            <rect x="14" y="4" width="4" height="16" fill="currentColor"></rect>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <h3>Ready to Get Started?</h3>
                         <a href="https://github.com/manan0209/Whatdidisign/releases/download/v1.0.0/WhatDidISign-v1.0.0.zip" class="install-cta" target="_blank">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -512,15 +543,26 @@
             
             <div class="demo-content">
                 <div class="demo-video">
-                    <!-- Placeholder for demo video - you'll add this -->
-                    <div class="video-placeholder">
-                        <div class="play-button">
-                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polygon points="5,3 19,12 5,21"></polygon>
-                            </svg>
+                    <div class="custom-video-player">
+                        <video class="main-demo-video" muted>
+                            <source src="assets/demo.mov" type="video/mp4">
+                            <source src="assets/demo.mov" type="video/quicktime">
+                            Your browser does not support the video tag.
+                        </video>
+                        <div class="video-overlay">
+                            <div class="play-pause-btn">
+                                <svg class="play-icon" width="48" height="48" viewBox="0 0 24 24" fill="none">
+                                    <polygon points="5,3 19,12 5,21" fill="currentColor"></polygon>
+                                </svg>
+                                <svg class="pause-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" style="display: none;">
+                                    <rect x="6" y="4" width="4" height="16" fill="currentColor"></rect>
+                                    <rect x="14" y="4" width="4" height="16" fill="currentColor"></rect>
+                                </svg>
+                            </div>
+                            <div class="video-info">
+                                <h3>Watch WhatDidISign in Action</h3>
+                            </div>
                         </div>
-                        <p>Demo Video Coming Soon</p>
-                        <small>Shows real-time detection and analysis</small>
                     </div>
                 </div>
                 
@@ -565,17 +607,17 @@
             <div class="demo-screenshots">
                 <div class="screenshot-grid">
                     <div class="screenshot-item">
-                        <img src="assets/screenshot-detection.png" alt="Link Detection" class="screenshot-img">
+                        <img src="assets/dot.png" alt="Link Detection" class="screenshot-img">
                         <h4>Smart Detection</h4>
                         <p>Automatically finds legal document links</p>
                     </div>
                     <div class="screenshot-item">
-                        <img src="assets/screenshot-analysis.png" alt="AI Analysis" class="screenshot-img">
+                        <img src="assets/analysing.png" alt="AI Analysis" class="screenshot-img">
                         <h4>AI Analysis</h4>
                         <p>Comprehensive summaries with risk scores</p>
                     </div>
                     <div class="screenshot-item">
-                        <img src="assets/screenshot-popup.png" alt="Extension Popup" class="screenshot-img">
+                        <img src="assets/aianalysis.png" alt="Extension Popup" class="screenshot-img">
                         <h4>Clean Interface</h4>
                         <p>Beautiful, easy-to-use popup design</p>
                     </div>
@@ -633,8 +675,8 @@
                     <span class="footer-brand-name">WhatDidISign</span>
                 </div>
                 <div class="footer-links">
-                    <a href="https://github.com/manan0209/WhatDidISign" target="_blank" class="footer-link">GitHub</a>
-                    <a href="https://github.com/manan0209/WhatDidISign/issues" target="_blank" class="footer-link">Support</a>
+                    <a href="https://github.com/manan0209/Whatdidisign" target="_blank" class="footer-link">GitHub</a>
+                    <a href="https://github.com/manan0209/Whatdidisign/issues" target="_blank" class="footer-link">Support</a>
                     <a href="privacy.html" class="footer-link">Privacy</a>
                 </div>
             </div>
