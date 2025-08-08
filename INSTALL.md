@@ -1,6 +1,6 @@
 # WhatDidISign Installation Guide
 
-## 🚀 Quick Installation (5 minutes)
+## Quick Installation (1 minute)
 
 ### Step 1: Download & Extract
 1. Download `WhatDidISign-v1.0.0.zip`
@@ -13,23 +13,12 @@
 4. Select the folder you extracted in Step 1
 5. The WhatDidISign icon should appear in your toolbar!
 
-### Step 3: Get Your API Key (Free)
-1. Visit: https://makersuite.google.com/app/apikey
-2. Sign in with Google
-3. Click "Create API Key"
-4. Copy the key
 
-### Step 4: Configure Extension
-1. Click the WhatDidISign icon in Chrome
-2. Go to "Settings" tab
-3. Paste your API key
-4. Click "Save"
-
-## ✅ You're Done!
+## You're Done!
 
 Visit any website and look for orange dots next to Terms & Privacy links. Click them to get AI analysis!
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 **Extension doesn't appear?**
 - Make sure Developer mode is ON
@@ -43,11 +32,11 @@ Visit any website and look for orange dots next to Terms & Privacy links. Click 
 - Make sure you copied the full key
 - Try creating a new key from Google AI Studio
 
-## 📞 Need Help?
+## Need Help?
 
 Visit: https://whatdidisign.tech/privacy.html#faq
 Or open an issue: https://github.com/manan0209/WhatDidISign/issues
 
 ---
 
-**Made with ❤️ for a more transparent internet**
+**Made with care for a more transparent internet**
