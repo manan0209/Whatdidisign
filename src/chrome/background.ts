@@ -22,7 +22,18 @@ class BackgroundService {
       return true; // Keep the message channel open for async response
     });
     
+    // Set up context menu on startup and when extension is installed/enabled
     this.setupContextMenu();
+    
+    // Handle extension installation/startup
+    chrome.runtime.onInstalled.addListener(() => {
+      this.setupContextMenu();
+    });
+    
+    // Handle service worker startup
+    chrome.runtime.onStartup.addListener(() => {
+      this.setupContextMenu();
+    });
   }
 
   private getDefaultSettings(): Settings {
@@ -274,13 +285,37 @@ class BackgroundService {
   private setupContextMenu(): void {
     try {
       // Check if contextMenus API is available
-      if (chrome.contextMenus && chrome.contextMenus.create) {
-        chrome.contextMenus.create({
-          id: 'whatdidisign-analyze',
-          title: 'Analyze with WhatDidISign',
-          contexts: ['link']
-        });
+      if (!chrome.contextMenus || !chrome.contextMenus.create) {
+        console.warn('Context menus API not available');
+        return;
+      }
 
+      // Remove all existing context menus first to avoid duplicates
+      chrome.contextMenus.removeAll(() => {
+        if (chrome.runtime.lastError) {
+          console.warn('Error removing existing context menus:', chrome.runtime.lastError);
+        }
+        
+        // Create the context menu after clearing existing ones
+        try {
+          chrome.contextMenus.create({
+            id: 'whatdidisign-analyze',
+            title: 'Analyze with WhatDidISign',
+            contexts: ['link']
+          }, () => {
+            if (chrome.runtime.lastError) {
+              console.error('Error creating context menu:', chrome.runtime.lastError);
+            } else {
+              console.log('Context menu created successfully');
+            }
+          });
+        } catch (error) {
+          console.error('Failed to create context menu:', error);
+        }
+      });
+
+      // Set up click listener (this should only be done once)
+      if (!chrome.contextMenus.onClicked.hasListeners()) {
         chrome.contextMenus.onClicked.addListener(async (info) => {
           if (info.menuItemId === 'whatdidisign-analyze' && info.linkUrl) {
             try {
@@ -291,8 +326,6 @@ class BackgroundService {
             }
           }
         });
-      } else {
-        console.warn('Context menus API not available');
       }
     } catch (error) {
       console.error('Failed to setup context menu:', error);
