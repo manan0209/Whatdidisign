@@ -40,7 +40,7 @@ Welcome to WhatDidISign - the AI-powered Chrome extension that helps you underst
 
 Since this extension is not yet published to the Chrome Web Store, you'll need to install it manually:
 
-1. **Download** the `WhatDidISign-v1.0.0.zip` file
+1. **Download** the `WhatDidISign-v1.0.1.zip` file
 2. **Extract** the ZIP file to a folder on your computer
 3. **Open Chrome** and go to `chrome://extensions/`
 4. **Enable Developer mode** (toggle in top-right corner)
@@ -88,6 +88,6 @@ Future releases will include:
 
 ---
 
-**Download WhatDidISign v1.0.0**: `WhatDidISign-v1.0.0.zip` (73KB)
+**Download WhatDidISign v1.0.0**: `WhatDidISign-v1.0.1.zip` (73KB)
 
 *Never sign blindly again! *
