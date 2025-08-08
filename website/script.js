@@ -267,27 +267,108 @@ document.addEventListener('DOMContentLoaded', function() {
         const playBtn = player.querySelector('.play-icon');
         const pauseBtn = player.querySelector('.pause-icon');
         const playPauseBtn = player.querySelector('.play-pause-btn');
+        const skipBackward = player.querySelector('.skip-backward');
+        const skipForward = player.querySelector('.skip-forward');
+        const progressContainer = player.querySelector('.progress-container');
+        const progressFilled = player.querySelector('.progress-filled');
+        const progressHandle = player.querySelector('.progress-handle');
+        const currentTimeSpan = player.querySelector('.current-time');
+        const durationSpan = player.querySelector('.duration');
         
-        // Play/Pause click handler
-        playPauseBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            
-            if (video.paused) {
-                video.play();
-                playBtn.style.display = 'none';
-                pauseBtn.style.display = 'block';
-                player.classList.add('playing');
-            } else {
-                video.pause();
-                playBtn.style.display = 'block';
-                pauseBtn.style.display = 'none';
-                player.classList.remove('playing');
+        // Format time in MM:SS format
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        // Update progress bar and time display
+        function updateProgress() {
+            if (video.duration) {
+                const progressPercent = (video.currentTime / video.duration) * 100;
+                progressFilled.style.width = `${progressPercent}%`;
+                progressHandle.style.left = `${progressPercent}%`;
+                
+                if (currentTimeSpan) currentTimeSpan.textContent = formatTime(video.currentTime);
+                if (durationSpan) durationSpan.textContent = formatTime(video.duration);
             }
+        }
+        
+        // Set progress bar on click
+        if (progressContainer) {
+            progressContainer.addEventListener('click', function(e) {
+                if (video.duration) {
+                    const rect = this.getBoundingClientRect();
+                    const clickX = e.clientX - rect.left;
+                    const width = rect.width;
+                    const clickPercent = clickX / width;
+                    video.currentTime = clickPercent * video.duration;
+                }
+            });
+        }
+        
+        // Skip backward 10 seconds
+        if (skipBackward) {
+            skipBackward.addEventListener('click', function(e) {
+                e.stopPropagation();
+                video.currentTime = Math.max(0, video.currentTime - 10);
+            });
+        }
+        
+        // Skip forward 10 seconds
+        if (skipForward) {
+            skipForward.addEventListener('click', function(e) {
+                e.stopPropagation();
+                video.currentTime = Math.min(video.duration, video.currentTime + 10);
+            });
+        }
+        
+        // Update progress as video plays
+        video.addEventListener('timeupdate', updateProgress);
+        
+        // Set duration when video loads
+        video.addEventListener('loadedmetadata', function() {
+            if (durationSpan) durationSpan.textContent = formatTime(video.duration);
+            updateProgress();
+            // Set default playback speed to 1.3x
+            video.playbackRate = 1.3;
         });
         
-        // Click anywhere on video to play/pause
-        player.addEventListener('click', function() {
-            playPauseBtn.click();
+        // Also set playback rate immediately if video is already loaded
+        if (video.readyState >= 1) {
+            video.playbackRate = 1.3;
+            if (durationSpan && video.duration) {
+                durationSpan.textContent = formatTime(video.duration);
+            }
+            updateProgress();
+        }
+        
+        // Play/Pause click handler
+        if (playPauseBtn) {
+            playPauseBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
+                if (video.paused) {
+                    video.play();
+                    playBtn.style.display = 'none';
+                    pauseBtn.style.display = 'block';
+                    player.classList.add('playing');
+                } else {
+                    video.pause();
+                    playBtn.style.display = 'block';
+                    pauseBtn.style.display = 'none';
+                    player.classList.remove('playing');
+                }
+            });
+        }
+        
+        // Click anywhere on video to play/pause (except controls)
+        player.addEventListener('click', function(e) {
+            // Don't trigger if clicking on controls
+            if (e.target.closest('.video-controls') || e.target.closest('.play-pause-btn')) {
+                return;
+            }
+            if (playPauseBtn) playPauseBtn.click();
         });
         
         // Video ended handler
@@ -295,6 +376,10 @@ document.addEventListener('DOMContentLoaded', function() {
             playBtn.style.display = 'block';
             pauseBtn.style.display = 'none';
             player.classList.remove('playing');
+            // Reset progress
+            progressFilled.style.width = '0%';
+            progressHandle.style.left = '0%';
+            if (currentTimeSpan) currentTimeSpan.textContent = '0:00';
         });
         
         // Video pause handler (for other pause events)
@@ -312,5 +397,22 @@ document.addEventListener('DOMContentLoaded', function() {
             pauseBtn.style.display = 'block';
             player.classList.add('playing');
         });
+        
+        // Keyboard controls
+        video.addEventListener('keydown', function(e) {
+            if (e.key === ' ') {
+                e.preventDefault();
+                if (playPauseBtn) playPauseBtn.click();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                video.currentTime = Math.max(0, video.currentTime - 10);
+            } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                video.currentTime = Math.min(video.duration, video.currentTime + 10);
+            }
+        });
+        
+        // Make video focusable for keyboard controls
+        video.tabIndex = 0;
     });
 });
