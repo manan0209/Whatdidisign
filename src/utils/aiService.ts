@@ -1,4 +1,7 @@
 import { Summary, AIProvider } from '../types';
+import { ErrorHandler } from './errorHandler';
+import { SmartCache } from './smartCache';
+import { RetryHelper } from './retryHelper';
 
 interface AIResponse {
   keyPoints: string[];
@@ -107,29 +110,38 @@ export class AIService {
 
   async summarizeDocument(content: string, url: string, type: string): Promise<Summary> {
     try {
-      let aiResponse: AIResponse;
-
-      switch (this.provider.provider) {
-        case 'gemini':
-          aiResponse = await this.callGeminiAPI(content, type);
-          break;
-        case 'openai':
-          aiResponse = await this.callOpenAIAPI(content, type);
-          break;
-        default:
-          throw new Error(`Unsupported AI provider: ${this.provider.provider}`);
+      // Check smart cache first
+      const cachedResult = await SmartCache.get(url);
+      if (cachedResult) {
+        console.log('WhatDidISign: Using cached result for', url);
+        return { ...cachedResult, cached: true };
       }
 
-      return this.formatSummary(aiResponse, url, type);
+      // Generate new summary with retry logic
+      const aiResponse: AIResponse = await RetryHelper.withRetry(async () => {
+        switch (this.provider.provider) {
+          case 'gemini':
+            return await this.callGeminiAPI(content, type);
+          case 'openai':
+            return await this.callOpenAIAPI(content, type);
+          default:
+            throw new Error(`Unsupported AI provider: ${this.provider.provider}`);
+        }
+      }, 2, 1000);
+
+      const summary = this.formatSummary(aiResponse, url, type);
+      
+      // Cache the successful result
+      await SmartCache.set(url, summary);
+      console.log('WhatDidISign: Cached new result for', url);
+      
+      return summary;
     } catch (error) {
       console.error('AI summarization error:', error);
       
-      // If it's a rate limit error, provide helpful message
-      if (error instanceof Error && error.message.includes('429')) {
-        throw new Error('Rate limit exceeded. Please try again in a moment or add your own API key in settings.');
-      }
-      
-      throw new Error(`Failed to generate summary: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      // Use ErrorHandler for user-friendly messages
+      const userMessage = ErrorHandler.handleAIError(error as Error);
+      throw new Error(userMessage);
     }
   }
 

@@ -1,5 +1,6 @@
 import { Summary, Settings, CacheEntry, DetectedLink } from '../types';
 import { AIService, DEFAULT_PROVIDERS } from '../utils/aiService';
+import { ErrorHandler } from '../utils/errorHandler';
 
 class BackgroundService {
   private cache: Map<string, CacheEntry> = new Map();
@@ -105,8 +106,12 @@ class BackgroundService {
       }
     } catch (error) {
       console.error('Background service error:', error);
+      const userFriendlyMessage = error instanceof Error 
+        ? ErrorHandler.handleAIError(error)
+        : 'Something went wrong. Please try again.';
+        
       sendResponse({ 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+        error: userFriendlyMessage
       });
     }
     

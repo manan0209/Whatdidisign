@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { DetectedLink, Summary, Settings } from '../types';
 import { DEFAULT_PROVIDERS } from '../utils/aiService';
+import { ErrorHandler } from '../utils/errorHandler';
 
 const Popup: React.FC = () => {
   const [links, setLinks] = useState<DetectedLink[]>([]);
@@ -10,10 +11,14 @@ const Popup: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'links' | 'summaries' | 'settings'>('links');
   const [error, setError] = useState<string | null>(null);
   const [isFirstTime, setIsFirstTime] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
 
   useEffect(() => {
     loadData();
     checkForClickedLink();
+    
+    // Hide initial loading after a brief moment
+    setTimeout(() => setIsInitialLoading(false), 300);
   }, []);
 
   const checkForClickedLink = async () => {
@@ -127,7 +132,8 @@ const Popup: React.FC = () => {
         setActiveTab('summaries');
       }
     } catch (error) {
-      setError('Failed to generate summary');
+      const errorMessage = ErrorHandler.handleAIError(error instanceof Error ? error : new Error('Unknown error'));
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

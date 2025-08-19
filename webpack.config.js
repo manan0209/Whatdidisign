@@ -37,6 +37,7 @@ module.exports = {
         { from: 'popup.html', to: 'popup.html' },
         { from: 'popup.css', to: 'popup.css' },
         { from: 'content.css', to: 'content.css' },
+        { from: 'src/styles/feedbackStyles.css', to: 'feedbackStyles.css' },
         { from: 'icons', to: 'icons', noErrorOnMissing: true }
       ]
     })

@@ -1,4 +1,6 @@
 import { DetectedLink } from '../types';
+import { PerformanceOptimizer } from '../utils/performanceOptimizer';
+import { ErrorHandler } from '../utils/errorHandler';
 
 class TCDetector {
   private static readonly KEYWORDS = {
@@ -35,10 +37,18 @@ class TCDetector {
   private isInitialized = false;
   private currentTooltip: HTMLElement | null = null;
   private currentAnalysisPopup: HTMLElement | null = null;
+  private throttledScanForLinks: Function;
 
   constructor() {
     this.observer = new MutationObserver(this.handleMutations.bind(this));
     this.setupMessageListener();
+    
+    // Create throttled version of scanForLinks for performance
+    this.throttledScanForLinks = PerformanceOptimizer.throttle(
+      this.scanForLinks.bind(this), 
+      1000, 
+      'scanForLinks'
+    );
   }
 
   private setupMessageListener(): void {
@@ -75,16 +85,27 @@ class TCDetector {
     console.log('WhatDidISign: Content script initializing...');
     this.isInitialized = true;
     
-    // Initial scan
-    this.scanForLinks();
+    // Use requestIdleCallback for non-urgent operations
+    if (window.requestIdleCallback) {
+      window.requestIdleCallback(() => {
+        this.scanForLinks();
+      });
+    } else {
+      // Fallback for browsers without requestIdleCallback
+      setTimeout(() => this.scanForLinks(), 100);
+    }
     
-    // Delayed scan for dynamic content
+    // Delayed scan for dynamic content with better timing
     setTimeout(() => {
       console.log('WhatDidISign: Performing delayed scan for dynamic content...');
-      this.scanForLinks();
+      if (window.requestIdleCallback) {
+        window.requestIdleCallback(() => this.scanForLinks());
+      } else {
+        this.scanForLinks();
+      }
     }, 2000);
     
-    // Start observing for future changes
+    // Start observing DOM changes with throttling
     this.startObserving();
     this.notifyBackground();
     console.log('WhatDidISign: Content script initialized');
@@ -675,7 +696,8 @@ class TCDetector {
     });
 
     if (shouldScan) {
-      setTimeout(() => this.scanForLinks(), 100);
+      // Use throttled version to prevent excessive scanning
+      this.throttledScanForLinks();
     }
   }
 
