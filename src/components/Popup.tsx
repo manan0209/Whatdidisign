@@ -81,14 +81,14 @@ const Popup: React.FC = () => {
         // Use default settings if we can't load from background
         const defaultSettings: Settings = {
           enabled: true,
-          preferredProvider: 'gemini' as const,
+          preferredProvider: 'hackclub' as const,
           aiProvider: {
-            name: 'Google Gemini',
-            apiKey: '',
-            model: 'gemini-1.5-flash',
-            endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent',
-            costPer1K: 0,
-            provider: 'gemini' as const
+            name: 'Hack Club AI',
+            apiKey: '', // No API key needed!
+            model: 'qwen/qwen3-32b',
+            endpoint: 'https://ai.hackclub.com/chat/completions',
+            costPer1K: 0, // Completely free!
+            provider: 'hackclub' as const
           },
           cacheEnabled: true,
           cacheExpiry: 30,
@@ -153,7 +153,7 @@ const Popup: React.FC = () => {
 
   const LinksTab = () => (
     <div className="tab-content">
-      {/* Extension now works out of the box with our default API rotation system */}
+      {/* Extension now works out of the box with Hack Club AI - completely free! */}
       
       <div className="header">
         <div className="header-content">
@@ -429,74 +429,98 @@ const Popup: React.FC = () => {
             <select
               value={localSettings.preferredProvider}
               onChange={(e) => {
-                const provider = e.target.value as 'gemini' | 'openai';
+                const provider = e.target.value as 'hackclub' | 'gemini' | 'openai';
+                const providerConfigs = {
+                  hackclub: {
+                    name: 'Hack Club AI',
+                    apiKey: '',
+                    model: 'qwen/qwen3-32b',
+                    endpoint: 'https://ai.hackclub.com/chat/completions',
+                    costPer1K: 0,
+                    provider: 'hackclub' as const
+                  },
+                  gemini: {
+                    name: 'Google Gemini',
+                    apiKey: '',
+                    model: 'gemini-1.5-flash',
+                    endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent',
+                    costPer1K: 0,
+                    provider: 'gemini' as const
+                  },
+                  openai: {
+                    name: 'OpenAI GPT-3.5',
+                    apiKey: '',
+                    model: 'gpt-3.5-turbo',
+                    endpoint: 'https://api.openai.com/v1/chat/completions',
+                    costPer1K: 0.002,
+                    provider: 'openai' as const
+                  }
+                };
                 setLocalSettings({
                   ...localSettings,
                   preferredProvider: provider,
-                  aiProvider: {
-                    ...DEFAULT_PROVIDERS[provider],
-                    apiKey: localSettings.aiProvider.apiKey // Keep existing API key
-                  }
+                  aiProvider: providerConfigs[provider]
                 });
               }}
             >
-              <option value="gemini">Google Gemini (Works out of the box)</option>
-              <option value="openai">OpenAI GPT-3.5 (Custom key required)</option>
+              <option value="hackclub"> Hack Club AI (Free & Unlimited)</option>
+              <option value="gemini">Google Gemini (API key required)</option>
+              <option value="openai">OpenAI GPT-3.5 (API key required)</option>
             </select>
           </div>
           
           <div className="setting-group">
             <div className="api-status-info">
-              {localSettings.preferredProvider === 'gemini' ? (
+              {localSettings.preferredProvider === 'hackclub' ? (
                 <div className="default-api-notice">
-                  <h4> No setup required!</h4>
-                  <p>WhatDidISign includes Google AI access for instant document analysis.</p>
+                  <h4> Hack Club AI - Completely Free!</h4>
+                  <p> No API key needed - unlimited analysis for Hack Club teens!</p>
                   <small>
-                    <strong>Optional:</strong> Add your own API key below for additional requests or as a backup.
+                    <strong>Powered by:</strong> Qwen 3 32B model via <a href="https://ai.hackclub.com" target="_blank" rel="noopener noreferrer">ai.hackclub.com</a>
+                    <br />
+                    <strong>Note:</strong> For projects only (not personal tools like Cursor)
                   </small>
+                </div>
+              ) : localSettings.preferredProvider === 'gemini' ? (
+                <div className="custom-api-notice">
+                  <h4>🔑 Google Gemini</h4>
+                  <p>Requires a free API key from Google AI Studio.</p>
+                  <small>Get your key at: <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio</a></small>
                 </div>
               ) : (
                 <div className="custom-api-notice">
-                  <h4> Custom API key required</h4>
-                  <p>OpenAI requires your own API key. Switch to Gemini for instant access without setup.</p>
+                  <h4>🔑 OpenAI GPT-3.5</h4>
+                  <p>Requires an OpenAI API key (~$0.002 per 1K tokens).</p>
+                  <small>Get your key at: <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer">OpenAI Platform</a></small>
                 </div>
               )}
             </div>
             
-            <label>
-              {localSettings.preferredProvider === 'gemini' 
-                ? 'Personal Google AI API Key (Optional):' 
-                : 'OpenAI API Key (Required):'
-              }
-            </label>
-            <input
-              type="password"
-              value={localSettings.aiProvider.apiKey}
-              onChange={(e) => setLocalSettings({
-                ...localSettings,
-                aiProvider: {
-                  ...localSettings.aiProvider,
-                  apiKey: e.target.value
-                }
-              })}
-              placeholder={localSettings.preferredProvider === 'gemini' 
-                ? 'Optional: Your personal Google AI API key' 
-                : 'Required: Enter your OpenAI API key'
-              }
-            />
-            <div className="api-help">
-              {localSettings.preferredProvider === 'gemini' ? (
-                <small>
-                  <strong>Optional fallback:</strong> Get your own key at <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio</a> for additional requests beyond our shared quota.
-                  <br />Your key gets additional 15 requests/minute, 1,500/day
-                </small>
-              ) : (
-                <small>
-                  Get your API key at: <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer">OpenAI Platform</a>
-                  <br />Paid: ~$0.002 per 1K tokens
-                </small>
-              )}
-            </div>
+            {localSettings.preferredProvider !== 'hackclub' && (
+              <>
+                <label>
+                  {localSettings.preferredProvider === 'gemini' 
+                    ? 'Google AI API Key (Required):' 
+                    : 'OpenAI API Key (Required):'
+                  }
+                </label>
+                <input
+                  type="password"
+                  value={localSettings.aiProvider.apiKey}
+                  onChange={(e) => setLocalSettings({
+                    ...localSettings,
+                    aiProvider: {
+                      ...localSettings.aiProvider,
+                      apiKey: e.target.value
+                    }
+                  })}
+                  placeholder={localSettings.preferredProvider === 'gemini' 
+                    ? 'Enter your Google AI API key' 
+                    : 'Enter your OpenAI API key'
+                  }
+                />
+              </>
+            )}
           </div>
           
           <div className="setting-group">

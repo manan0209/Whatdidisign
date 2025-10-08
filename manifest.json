@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "WhatDidISign - AI Legal Document Analyzer",
-  "version": "1.0.0",
-  "description": "Never sign blindly again! Automatically detect and analyze Terms & Conditions with AI-powered summaries and risk assessments.",
+  "version": "1.4",
+  "description": "Never sign blindly again! Automatically detect and analyze Terms & Conditions with AI-powered summaries. Powered by Hack Club AI - completely free!",
   "permissions": [
     "activeTab",
     "storage",

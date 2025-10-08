@@ -48,7 +48,7 @@ export interface AIProvider {
   model: string;
   endpoint: string;
   costPer1K: number;
-  provider: 'openai' | 'gemini' | 'local';
+  provider: 'openai' | 'gemini' | 'local' | 'hackclub';
 }
 
 export interface Settings {
@@ -60,5 +60,5 @@ export interface Settings {
   riskThreshold: number;
   uiMode: 'popup' | 'sidebar' | 'tooltip';
   notifications: boolean;
-  preferredProvider: 'gemini' | 'openai' | 'local';
+  preferredProvider: 'gemini' | 'openai' | 'local' | 'hackclub';
 }

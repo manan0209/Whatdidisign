@@ -20,92 +20,17 @@ interface AIResponse {
   riskScore: number;
 }
 
-// Placeholder API keys for GitHub (replaced during build process)
-// The built extension will have working API keys injected
-const DEFAULT_API_KEYS = [
-  'PLACEHOLDER_API_KEY_1',
-  'PLACEHOLDER_API_KEY_2', 
-  'PLACEHOLDER_API_KEY_3',
-  'PLACEHOLDER_API_KEY_4'
-];
+// Hack Club AI - Free unlimited API for teens in Hack Club!
+// No API key needed - completely free!
+// Learn more: https://ai.hackclub.com
+const HACKCLUB_AI_ENDPOINT = 'https://ai.hackclub.com/chat/completions';
+const HACKCLUB_AI_MODEL = 'qwen/qwen3-32b'; // Default model - fast and capable
 
 export class AIService {
   private provider: AIProvider;
-  private static currentKeyIndex = 0;
-  private static requestCounts: Map<string, { count: number, resetTime: number }> = new Map();
-  private static readonly REQUESTS_PER_MINUTE = 15; 
-  private static readonly MINUTE_IN_MS = 60 * 1000;
 
   constructor(provider: AIProvider) {
     this.provider = provider;
-  }
-
-  private static getNextApiKey(): string {
-    // Rotate
-    const key = DEFAULT_API_KEYS[this.currentKeyIndex];
-    this.currentKeyIndex = (this.currentKeyIndex + 1) % DEFAULT_API_KEYS.length;
-    return key;
-  }
-
-  private static isKeyRateLimited(apiKey: string): boolean {
-    const now = Date.now();
-    const keyStats = this.requestCounts.get(apiKey);
-    
-    if (!keyStats) {
-      return false;
-    }
-    if (now - keyStats.resetTime >= this.MINUTE_IN_MS) {
-      keyStats.count = 0;
-      keyStats.resetTime = now;
-      return false;
-    }
-    
-    return keyStats.count >= this.REQUESTS_PER_MINUTE;
-  }
-
-  public static checkKeyRateLimit(apiKey: string): boolean {
-    return this.isKeyRateLimited(apiKey);
-  }
-
-  private static incrementKeyUsage(apiKey: string): void {
-    const now = Date.now();
-    const keyStats = this.requestCounts.get(apiKey);
-    
-    if (!keyStats || now - keyStats.resetTime >= this.MINUTE_IN_MS) {
-      this.requestCounts.set(apiKey, { count: 1, resetTime: now });
-    } else {
-      keyStats.count++;
-    }
-  }
-
-  private getAvailableApiKey(): string {
-    // Check if default keys are properly configured
-    if (hasDefaultApiKeys()) {
-      // First, try to use our default API keys with rotation
-      for (let i = 0; i < DEFAULT_API_KEYS.length; i++) {
-        const key = AIService.getNextApiKey();
-        if (!AIService.isKeyRateLimited(key)) {
-          return key;
-        }
-      }
-    }
-    
-    // If default keys aren't configured or all are rate limited, use user's custom key
-    if (this.provider.apiKey && this.provider.apiKey.trim() !== '') {
-      if (!AIService.isKeyRateLimited(this.provider.apiKey)) {
-        console.log('Using user-provided API key');
-        return this.provider.apiKey;
-      }
-    }
-    
-    // If we have default keys but they're rate limited, use them anyway
-    if (hasDefaultApiKeys()) {
-      console.warn('All default API keys appear to be rate limited, attempting with rotated key');
-      return AIService.getNextApiKey();
-    }
-    
-    // No valid API keys available
-    throw new Error('No API keys configured. Please add your Google AI API key in settings or contact support.');
   }
 
   async summarizeDocument(content: string, url: string, type: string): Promise<Summary> {
@@ -117,16 +42,9 @@ export class AIService {
         return { ...cachedResult, cached: true };
       }
 
-      // Generate new summary with retry logic
+      // Generate new summary with retry logic - using Hack Club AI!
       const aiResponse: AIResponse = await RetryHelper.withRetry(async () => {
-        switch (this.provider.provider) {
-          case 'gemini':
-            return await this.callGeminiAPI(content, type);
-          case 'openai':
-            return await this.callOpenAIAPI(content, type);
-          default:
-            throw new Error(`Unsupported AI provider: ${this.provider.provider}`);
-        }
+        return await this.callHackClubAPI(content, type);
       }, 2, 1000);
 
       const summary = this.formatSummary(aiResponse, url, type);
@@ -145,104 +63,29 @@ export class AIService {
     }
   }
 
-  private async callGeminiAPI(content: string, type: string): Promise<AIResponse> {
+  private async callHackClubAPI(content: string, type: string): Promise<AIResponse> {
     const prompt = this.buildPrompt(content, type);
     
-    // Get available API key with rotation/fallback logic
-    const apiKey = this.getAvailableApiKey();
-    AIService.incrementKeyUsage(apiKey);
+    console.log('WhatDidISign: Using Hack Club AI (free & unlimited!)');
     
-    // Updated model name - Gemini 1.5 Flash is the current free model
-    const modelName = 'gemini-1.5-flash';
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
-    
-    const response = await fetch(apiUrl, {
+    const response = await fetch(HACKCLUB_AI_ENDPOINT, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: prompt
-          }]
-        }],
-        generationConfig: {
-          temperature: 0.1,
-          topK: 1,
-          topP: 1,
-          maxOutputTokens: 1000,
-        },
-        safetySettings: [
-          {
-            category: "HARM_CATEGORY_HARASSMENT",
-            threshold: "BLOCK_NONE"
-          },
-          {
-            category: "HARM_CATEGORY_HATE_SPEECH", 
-            threshold: "BLOCK_NONE"
-          },
-          {
-            category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-            threshold: "BLOCK_NONE"
-          },
-          {
-            category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-            threshold: "BLOCK_NONE"
-          }
-        ]
-      })
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      
-      // Handle rate limiting specifically
-      if (response.status === 429) {
-        throw new Error(`API rate limit exceeded (${response.status}). Our servers are busy - please try again in a moment.`);
-      }
-      
-      throw new Error(`Gemini API error: ${response.status} - ${errorData.error?.message || response.statusText}`);
-    }
-
-    const data = await response.json();
-    
-    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
-      throw new Error('Invalid response from Gemini API');
-    }
-
-    const responseText = data.candidates[0].content.parts[0].text;
-    return this.parseAIResponse(responseText);
-  }
-
-  private async callOpenAIAPI(content: string, type: string): Promise<AIResponse> {
-    const prompt = this.buildPrompt(content, type);
-    
-    // For OpenAI, we still use the user's API key since we don't provide OpenAI keys
-    const apiKey = this.provider.apiKey;
-    if (!apiKey || apiKey.trim() === '') {
-      throw new Error('OpenAI API key not configured. Please add your API key in settings or switch to Gemini (default).');
-    }
-    
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: this.provider.model || 'gpt-3.5-turbo',
+        model: HACKCLUB_AI_MODEL,
         messages: [
           {
             role: 'system',
-            content: 'You are a legal document analyzer specializing in Terms of Service and Privacy Policies. Provide clear, concise summaries for everyday users. Always respond with valid JSON.'
+            content: 'You are a legal document analyzer specializing in Terms of Service and Privacy Policies. Provide clear, concise summaries for everyday users. Always respond with valid JSON only, no markdown formatting.'
           },
           {
             role: 'user',
             content: prompt
           }
         ],
-        max_tokens: 1000,
+        max_tokens: 1500,
         temperature: 0.1
       })
     });
@@ -252,16 +95,16 @@ export class AIService {
       
       // Handle rate limiting specifically
       if (response.status === 429) {
-        throw new Error(`OpenAI rate limit exceeded (${response.status}). Please try again in a moment.`);
+        throw new Error(`Hack Club AI is busy. Please try again in a moment.`);
       }
       
-      throw new Error(`OpenAI API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
+      throw new Error(`Hack Club AI error: ${response.status} - ${errorData.error?.message || response.statusText}`);
     }
 
     const data = await response.json();
     
     if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-      throw new Error('Invalid response from OpenAI API');
+      throw new Error('Invalid response from Hack Club AI');
     }
 
     const responseText = data.choices[0].message.content;
@@ -319,15 +162,23 @@ Example response format:
   "riskScore": 0.7
 }
 
-Respond ONLY with valid JSON. Do not include any other text or explanations.
+Respond ONLY with valid JSON. Do not include markdown code blocks, explanations, or any other text.
 `;
   }
 
   private parseAIResponse(responseText: string): AIResponse {
     try {
+      // Remove markdown code blocks if present
+      let cleanedText = responseText.trim();
+      if (cleanedText.startsWith('```json')) {
+        cleanedText = cleanedText.replace(/```json\s*/, '').replace(/```\s*$/, '');
+      } else if (cleanedText.startsWith('```')) {
+        cleanedText = cleanedText.replace(/```\s*/, '').replace(/```\s*$/, '');
+      }
+      
       // Try to extract JSON from response (in case there's extra text)
-      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-      const jsonText = jsonMatch ? jsonMatch[0] : responseText;
+      const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
+      const jsonText = jsonMatch ? jsonMatch[0] : cleanedText;
       
       const parsed = JSON.parse(jsonText);
       
@@ -382,47 +233,14 @@ Respond ONLY with valid JSON. Do not include any other text or explanations.
   }
 }
 
-// Default providers configuration
+// Default providers configuration - now using Hack Club AI!
 export const DEFAULT_PROVIDERS: Record<string, AIProvider> = {
-  gemini: {
-    name: 'Google Gemini (Default)',
-    apiKey: '', // This will be populated by our rotation system
-    model: 'gemini-1.5-flash',
-    endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent',
-    costPer1K: 0, // Free tier
-    provider: 'gemini'
-  },
-  openai: {
-    name: 'OpenAI GPT-3.5 (Custom Key Required)',
-    apiKey: '',
-    model: 'gpt-3.5-turbo',
-    endpoint: 'https://api.openai.com/v1/chat/completions',
-    costPer1K: 0.002,
-    provider: 'openai'
+  hackclub: {
+    name: 'Hack Club AI (Free & Unlimited)',
+    apiKey: '', // No API key needed!
+    model: HACKCLUB_AI_MODEL,
+    endpoint: HACKCLUB_AI_ENDPOINT,
+    costPer1K: 0, // Completely free!
+    provider: 'hackclub' as any // Will update types later
   }
-};
-
-// Helper function to check if default API keys are configured
-export const hasDefaultApiKeys = (): boolean => {
-  return DEFAULT_API_KEYS.every(key => 
-    key && 
-    key.startsWith('AIzaSy') && 
-    key.length > 30 && 
-    !key.includes('_REPLACE_WITH_YOUR_') &&
-    !key.includes('_HERE')
-  );
-};
-
-// Helper function to get API rotation status
-export const getApiRotationStatus = (): { totalKeys: number, availableKeys: number, configured: boolean } => {
-  const configured = hasDefaultApiKeys();
-  const availableKeys = configured ? DEFAULT_API_KEYS.filter(key => 
-    !AIService.checkKeyRateLimit(key)
-  ).length : 0;
-  
-  return {
-    totalKeys: DEFAULT_API_KEYS.length,
-    availableKeys,
-    configured
-  };
 };

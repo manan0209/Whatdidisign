@@ -41,12 +41,12 @@ class BackgroundService {
     return {
       enabled: true,
       aiProvider: {
-        name: 'Google Gemini',
-        apiKey: '',
-        model: 'gemini-1.5-flash',
-        endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent',
-        costPer1K: 0,
-        provider: 'gemini'
+        name: 'Hack Club AI',
+        apiKey: '', // No API key needed!
+        model: 'qwen/qwen3-32b',
+        endpoint: 'https://ai.hackclub.com/chat/completions',
+        costPer1K: 0, // Completely free!
+        provider: 'hackclub'
       },
       cacheEnabled: true,
       cacheExpiry: 30, // days
@@ -54,7 +54,7 @@ class BackgroundService {
       riskThreshold: 0.7,
       uiMode: 'popup',
       notifications: true,
-      preferredProvider: 'gemini'
+      preferredProvider: 'hackclub'
     };
   }
 
@@ -281,8 +281,7 @@ class BackgroundService {
   }
 
   private async createAISummary(content: string, type: string, url: string): Promise<Summary> {
-    // With our API rotation system, we don't require user to configure API keys anymore
-    // The AIService will handle rotation and fallback automatically
+    // Hack Club AI is free and requires no API key - perfect for our use case!
     const aiService = new AIService(this.settings.aiProvider);
     return await aiService.summarizeDocument(content, url, type);
   }
