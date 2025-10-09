@@ -4,7 +4,7 @@
 function installExtension() {
     // Direct to GitHub releases for manual installation
     scrollToInstall();
-    window.open('https://github.com/manan0209/Whatdidisign/releases/download/v1.3/WhatDidISign-v1.3.zip');
+    window.open('https://github.com/manan0209/Whatdidisign/releases/download/v1.4/WhatDidISign-v1.4.zip');
 }
 
 // Tab switching functionality
